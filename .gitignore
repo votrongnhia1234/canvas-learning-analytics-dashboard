@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.db
+*.sqlite3
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Airflow
+airflow/
+airflow_home/
+logs/
+dags/__pycache__/
+plugins/__pycache__/
+
+# Environment & configs
+.env
+*.log
+*.pid
+
+# System
+.DS_Store
+Thumbs.db
+
+# VSCode / PyCharm
+.vscode/
+.idea/
