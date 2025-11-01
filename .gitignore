@@ -29,3 +29,6 @@ Thumbs.db
 # VSCode / PyCharm
 .vscode/
 .idea/
+
+# Docker
+docler-compose.yml

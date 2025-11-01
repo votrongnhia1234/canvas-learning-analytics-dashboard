@@ -1,6 +1,8 @@
-#
-# canvas_etl_dag.py — FINAL VERSION (multi-course + stable)
-#
+# =====================================================
+# 🧠 Canvas ETL Pipeline (Local API + PostgreSQL DWH)
+# Author: Võ Trọng Nghĩa (HUTECH)
+# =====================================================
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime
@@ -10,141 +12,213 @@ from sqlalchemy import create_engine
 import os
 from dotenv import load_dotenv
 
-# --- LOAD ENVIRONMENT VARIABLES ---
-load_dotenv()
+# --- Load environment variables (.env.local) ---
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env.local')
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+else:
+    load_dotenv()
 
-CANVAS_API_BASE_URL = os.getenv("CANVAS_API_BASE_URL")
+CANVAS_API_BASE_URL = os.getenv("CANVAS_API_BASE_URL", "http://web/api/v1/")
 CANVAS_API_TOKEN = os.getenv("CANVAS_API_TOKEN")
-COURSE_IDS = os.getenv("COURSE_IDS").split(",")
+COURSE_IDS = os.getenv("COURSE_IDS", "1,2,3,4").split(",")
 DB_CONNECTION_STRING = os.getenv("DB_CONNECTION_STRING")
+
+print(f"🔧 API URL: {CANVAS_API_BASE_URL}")
+print(f"🔧 Token exists: {bool(CANVAS_API_TOKEN)}")
+print(f"🔧 Course IDs: {COURSE_IDS}")
 
 HEADERS = {"Authorization": f"Bearer {CANVAS_API_TOKEN}"}
 
 
-# --- TASK 1: EXTRACT COURSE INFO ---
+# =====================================================
+# 1️⃣ Extract Courses Info
+# =====================================================
 def extract_courses():
-    """Lấy thông tin tên khóa học từ Canvas API và lưu vào dim_courses"""
     courses_data = []
 
     for cid in COURSE_IDS:
         res = requests.get(f"{CANVAS_API_BASE_URL}courses/{cid}", headers=HEADERS)
         if res.status_code == 200:
             data = res.json()
-            course_name = data.get("name", f"Course {cid}")
-            courses_data.append({"course_id": str(cid), "course_name": course_name})
-            print(f"✅ {cid} - {course_name}")
+            courses_data.append({
+                "course_id": str(cid),
+                "course_name": data.get("name", f"Course {cid}")
+            })
+            print(f"✅ Lấy thông tin khóa học: {data.get('name')}")
         else:
-            print(f"⚠️ Không lấy được thông tin cho course {cid}")
+            print(f"⚠️ Không lấy được course {cid} (HTTP {res.status_code})")
 
-    df_courses = pd.DataFrame(courses_data)
+    if not courses_data:
+        print("⚠️ Không có khóa học nào được lấy.")
+        return
+
+    df = pd.DataFrame(courses_data)
     engine = create_engine(DB_CONNECTION_STRING)
+    df.to_sql("dim_courses", engine, if_exists="replace", index=False)
+    print(f"📚 Đã lưu {len(df)} khóa học vào bảng dim_courses.")
 
-    # 🧩 Dùng 'replace' chỉ 1 lần để cập nhật lại toàn bộ danh sách khóa học
-    try:
-        df_courses.to_sql("dim_courses", engine, if_exists="replace", index=False)
-        print(f"📚 Đã lưu {len(df_courses)} khóa học vào dim_courses.")
-    except Exception as e:
-        print(f"⚠️ Lỗi khi tải dim_courses: {e}")
 
+# =====================================================
+# 2️⃣ Extract Students + Submissions (fix pagination)
+# =====================================================
 def extract_submissions_data():
+    all_students = []
     all_submissions = []
 
     for course_id in COURSE_IDS:
-        print(f"\n🎓 Đang xử lý khóa học: {course_id}")
-        url = f"{CANVAS_API_BASE_URL}courses/{course_id}/assignments"
-        res = requests.get(url, headers=HEADERS)
+        print(f"\n🎓 Đang xử lý khóa học {course_id}")
+        page = 1
+        prev_students = None
+        total_students = 0
 
+        # --- Lấy toàn bộ sinh viên ---
+        while True:
+            url = f"{CANVAS_API_BASE_URL}courses/{course_id}/students?per_page=100&page={page}"
+            res = requests.get(url, headers=HEADERS)
+            if res.status_code != 200:
+                print(f"⚠️ Lỗi khi lấy sinh viên khóa {course_id}: {res.status_code}")
+                break
+
+            students = res.json()
+            if not students:
+                print(f"✅ Hết dữ liệu sinh viên sau {page-1} trang.")
+                break
+
+            # 🚫 Phát hiện trùng dữ liệu
+            if prev_students == students:
+                print(f"⚠️ Phát hiện dữ liệu lặp lại ở trang {page}, dừng vòng lặp.")
+                break
+
+            all_students.extend(students)
+            total_students += len(students)
+            print(f"📘 Trang {page}: {len(students)} sinh viên (Tổng: {total_students})")
+
+            prev_students = students
+            page += 1
+
+            if page > 200:
+                print("⚠️ Dừng vòng lặp sau 200 trang để tránh loop vô hạn.")
+                break
+
+        # --- Lấy danh sách bài tập ---
+        assign_url = f"{CANVAS_API_BASE_URL}courses/{course_id}/assignments?per_page=100"
+        res = requests.get(assign_url, headers=HEADERS)
         if res.status_code != 200:
-            print(f"⚠️ Không thể truy cập khóa học {course_id} — status {res.status_code}")
+            print(f"⚠️ Lỗi khi lấy assignments khóa {course_id}")
             continue
 
         assignments = res.json()
-        if not isinstance(assignments, list) or len(assignments) == 0:
-            print(f"⚠️ Khóa học {course_id} không có assignments.")
-            continue
+        print(f"📚 {len(assignments)} bài tập trong khóa {course_id}")
 
-        print(f"📚 {len(assignments)} bài tập tìm thấy trong khóa {course_id}")
-
+        # --- Lấy bài nộp của từng assignment ---
         for a in assignments:
-            assignment_id = a["id"]
-            submissions_url = (
-                f"{CANVAS_API_BASE_URL}courses/{course_id}/assignments/{assignment_id}/submissions?include[]=user"
-            )
-            subs = requests.get(submissions_url, headers=HEADERS).json()
-            for s in subs:
-                s["course_id"] = str(course_id)
-            all_submissions.extend(subs)
-            print(f"✅ {len(subs)} submissions từ {a['name']} (course {course_id})")
+            a_id = a["id"]
+            sub_page = 1
+            prev_subs = None
+            while True:
+                sub_url = (
+                    f"{CANVAS_API_BASE_URL}courses/{course_id}/assignments/{a_id}/submissions"
+                    f"?include[]=user&per_page=100&page={sub_page}"
+                )
+                subs = requests.get(sub_url, headers=HEADERS)
+                if subs.status_code != 200:
+                    break
 
-    if len(all_submissions) == 0:
-        print("⚠️ Không có submissions nào được lấy — kiểm tra lại các course ID hoặc assignments trên Canvas.")
-        return
+                data = subs.json()
+                if not data:
+                    break
 
-    df = pd.json_normalize(all_submissions)
-    df.to_csv("/tmp/raw_submissions.csv", index=False)
-    print(f"📦 Đã trích xuất {len(df)} submissions từ {len(COURSE_IDS)} khóa học.")
+                if prev_subs == data:
+                    print(f"⚠️ Dữ liệu submissions lặp lại ở trang {sub_page}, dừng.")
+                    break
+
+                for s in data:
+                    s["course_id"] = str(course_id)
+                all_submissions.extend(data)
+                print(f"📄 {len(data)} submissions (assignment {a_id}, page {sub_page})")
+
+                prev_subs = data
+                sub_page += 1
+
+                if sub_page > 200:
+                    print("⚠️ Dừng lấy submissions sau 200 trang.")
+                    break
+
+    # --- Lưu tạm dữ liệu ---
+    pd.DataFrame(all_students).to_csv("/tmp/raw_students.csv", index=False)
+    pd.DataFrame(all_submissions).to_csv("/tmp/raw_submissions.csv", index=False)
+    print(f"📦 Hoàn tất trích xuất: {len(all_students)} sinh viên, {len(all_submissions)} submissions.")
 
 
-
-# --- TASK 3: TRANSFORM & LOAD ---
+# =====================================================
+# 3️⃣ Transform + Load
+# =====================================================
 def transform_and_load_data():
-    """Làm sạch và tải dữ liệu submissions vào Data Warehouse"""
-    df = pd.read_csv("/tmp/raw_submissions.csv")
+    students_csv = "/tmp/raw_students.csv"
+    submissions_csv = "/tmp/raw_submissions.csv"
 
-    # 🧠 Đảm bảo có cột course_id
-    if "course_id" not in df.columns:
-        print("⚠️ Thiếu cột course_id trong dữ liệu! Kiểm tra lại hàm extract_submissions_data.")
+    if not os.path.exists(students_csv) or not os.path.exists(submissions_csv):
+        print("⚠️ Thiếu file dữ liệu thô. Hãy chạy task extract trước.")
         return
 
-    # --- DIM STUDENTS ---
-    df_students = df[["user.id", "user.name", "user.login_id"]].drop_duplicates()
+    try:
+        df_students_raw = pd.read_csv(students_csv)
+        df_subs_raw = pd.read_csv(submissions_csv)
+    except pd.errors.EmptyDataError:
+        print("⚠️ File CSV rỗng. Không có dữ liệu để xử lý.")
+        return
+
+    if df_students_raw.empty or df_subs_raw.empty:
+        print("⚠️ Dữ liệu rỗng. Không thể tiếp tục transform.")
+        return
+
+    # --- Làm sạch dữ liệu sinh viên ---
+    df_students = df_students_raw[["id", "name", "login_id"]].drop_duplicates(subset=["id"])
     df_students.columns = ["student_id", "student_name", "student_email"]
 
-    # --- FACT SUBMISSIONS ---
-    df_facts = df[["id", "user.id", "assignment_id", "submitted_at", "grade", "late", "course_id"]].rename(
+    # --- Làm sạch submissions ---
+    cols_needed = ["id", "user.id", "assignment_id", "submitted_at", "grade", "late", "course_id"]
+    df_facts = df_subs_raw[[c for c in cols_needed if c in df_subs_raw.columns]].rename(
         columns={"id": "submission_id", "user.id": "student_id"}
     )
     df_facts["submitted_at"] = pd.to_datetime(df_facts["submitted_at"], errors="coerce")
     df_facts["grade"] = pd.to_numeric(df_facts["grade"], errors="coerce")
-    df_facts["course_id"] = df_facts["course_id"].astype(str)
 
-    # --- LOAD TO DATABASE ---
+    # --- Nạp vào DB ---
     engine = create_engine(DB_CONNECTION_STRING)
     with engine.connect() as conn:
-        try:
-            # Ghi thêm sinh viên (append)
-            df_students.to_sql("dim_students", conn, if_exists="append", index=False)
-            print(f"👩‍🎓 Đã tải {len(df_students)} bản ghi vào dim_students.")
-        except Exception as e:
-            print(f"⚠️ Lỗi tải dim_students (có thể trùng khóa): {e}")
+        df_students.to_sql("dim_students", conn, if_exists="replace", index=False)
+        df_facts.to_sql("fact_submissions", conn, if_exists="replace", index=False)
 
-        # Ghi thêm submissions
-        df_facts.to_sql("fact_submissions", conn, if_exists="append", index=False)
-        print(f"📊 Đã tải {len(df_facts)} bản ghi vào fact_submissions.")
+    print(f"👩‍🎓 {len(df_students)} sinh viên → dim_students")
+    print(f"📊 {len(df_facts)} submissions → fact_submissions")
 
 
-# --- DAG DEFINITION ---
+# =====================================================
+# DAG Definition
+# =====================================================
 with DAG(
-    dag_id="canvas_etl_pipeline",
-    start_date=datetime(2025, 10, 10),
+    dag_id="canvas_etl_pipeline_local",
+    start_date=datetime(2025, 10, 1),
     schedule="@daily",
     catchup=False,
-    tags=["canvas", "etl"],
+    tags=["canvas", "etl", "local"],
 ) as dag:
 
     extract_courses_task = PythonOperator(
-        task_id="extract_courses_info",
+        task_id="extract_courses",
         python_callable=extract_courses,
     )
 
     extract_submissions_task = PythonOperator(
-        task_id="extract_canvas_submissions",
+        task_id="extract_submissions_data",
         python_callable=extract_submissions_data,
     )
 
-    transform_load_task = PythonOperator(
-        task_id="transform_and_load_to_dwh",
+    transform_and_load_task = PythonOperator(
+        task_id="transform_and_load",
         python_callable=transform_and_load_data,
     )
 
-    extract_courses_task >> extract_submissions_task >> transform_load_task
+    extract_courses_task >> extract_submissions_task >> transform_and_load_task
