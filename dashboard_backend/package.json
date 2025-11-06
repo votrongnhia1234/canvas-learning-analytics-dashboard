@@ -1,0 +1,17 @@
+{
+  "name": "learning-analytics-dashboard-service",
+  "version": "0.1.0",
+  "description": "Backend service cung cấp API cho dashboard Learning Analytics (Canvas LMS).",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "NODE_ENV=development node --watch src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1",
+    "express": "^4.19.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.11.3"
+  }
+}
