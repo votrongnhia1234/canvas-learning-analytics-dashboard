@@ -1,0 +1,17 @@
+course_name,risk_bucket,late_ratio
+Khóa học C++,At-Risk (Luoi 5-7 + tre),0.5733333333333334
+Khóa học C++,At-Risk (Yeu <5),0.11481481481481481
+Khóa học C++,Kha/Gioi (>=7),0.08461538461538462
+Khóa học C++,"On dinh (5-7, dung han)",0.23333333333333334
+Khóa học Java,At-Risk (Luoi 5-7 + tre),0.56
+Khóa học Java,At-Risk (Yeu <5),0.06666666666666667
+Khóa học Java,Kha/Gioi (>=7),0.18461538461538463
+Khóa học Java,"On dinh (5-7, dung han)",0.26666666666666666
+Khóa học JavaScript,At-Risk (Luoi 5-7 + tre),0.5866666666666667
+Khóa học JavaScript,At-Risk (Yeu <5),0.10740740740740741
+Khóa học JavaScript,Kha/Gioi (>=7),0.1
+Khóa học JavaScript,"On dinh (5-7, dung han)",0.13333333333333333
+Khóa học Python,At-Risk (Luoi 5-7 + tre),0.5066666666666667
+Khóa học Python,At-Risk (Yeu <5),0.0962962962962963
+Khóa học Python,Kha/Gioi (>=7),0.09230769230769231
+Khóa học Python,"On dinh (5-7, dung han)",0.2

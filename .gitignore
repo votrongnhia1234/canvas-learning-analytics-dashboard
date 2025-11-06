@@ -19,6 +19,8 @@ plugins/__pycache__/
 
 # Environment & configs
 .env
+.env.local
+.env.example
 *.log
 *.pid
 
