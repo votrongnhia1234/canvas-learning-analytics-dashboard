@@ -6,7 +6,12 @@ import {
   fetchStudentDistribution,
   fetchWeeklyTrends,
   fetchLateHeatmap,
-  fetchHistogram
+  fetchHistogram,
+  fetchAssignmentCompletion,
+  fetchStudentPerformanceTrend,
+  fetchCourseComparison,
+  fetchTopStudents,
+  fetchRealtimeActivity
 } from "./analyticsService.js";
 
 const router = express.Router();
@@ -86,34 +91,94 @@ router.get("/students/histogram", async (_req, res, next) => {
   }
 });
 
+// New endpoints
+router.get("/courses/assignments", async (_req, res, next) => {
+  try {
+    const data = await fetchAssignmentCompletion();
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/students/:id/trend", async (req, res, next) => {
+  try {
+    const data = await fetchStudentPerformanceTrend(req.params.id);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/courses/comparison", async (_req, res, next) => {
+  try {
+    const data = await fetchCourseComparison();
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/students/top-performers", async (req, res, next) => {
+  try {
+    const limit = Number(req.query.limit) || 10;
+    const data = await fetchTopStudents(limit);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/activity/realtime", async (_req, res, next) => {
+  try {
+    const data = await fetchRealtimeActivity();
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/all", async (_req, res, next) => {
   try {
     const [
       overview,
       courses,
-      topStudents,
+      students,
       distribution,
       trends,
       heatmap,
-      histogram
+      histogram,
+      assignments,
+      courseComparison,
+      topPerformers,
+      realtimeActivity
     ] = await Promise.all([
       fetchOverview(),
       fetchCourseSummary(),
-      fetchStudentSummary(20),
+      fetchStudentSummary(1000),
       fetchStudentDistribution(),
       fetchWeeklyTrends(),
       fetchLateHeatmap(),
-      fetchHistogram()
+      fetchHistogram(),
+      fetchAssignmentCompletion(),
+      fetchCourseComparison(),
+      fetchTopStudents(10),
+      fetchRealtimeActivity()
     ]);
 
     res.json({
       overview,
       courses,
-      topStudents,
+      students,
+      topStudents: students.slice(0, 20),
       distribution,
       trends,
       heatmap,
-      histogram
+      histogram,
+      assignments,
+      courseComparison,
+      topPerformers,
+      realtimeActivity
     });
   } catch (error) {
     next(error);

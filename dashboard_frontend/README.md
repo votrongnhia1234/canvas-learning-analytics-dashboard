@@ -1,44 +1,20 @@
-# Learning Analytics Dashboard Frontend
+# 🎨 Canvas Learning Analytics - Modern Dashboard
 
-SPA React + D3.js tiêu thụ API từ backend (`learning_analytics/backend`).
+Giao diện mới hoàn toàn cho Canvas Learning Analytics với thiết kế hiện đại.
 
-## Chạy phát triển
+## Tính năng
 
-```bash
-cd learning_analytics/dashboard_frontend
-npm install
-npm run dev             # http://localhost:5173
-```
+- 📊 Dashboard với sidebar navigation
+- 👥 Quản lý sinh viên với tìm kiếm/lọc
+- 📚 Phân tích khóa học
+- 📈 Analytics nâng cao (Heatmap, Histogram, Trends)
+- 🎨 Modern UI với animations mượt mà
+- 📱 Fully responsive
 
-- Vite proxy `/api` → `http://localhost:4000` (backend) theo cấu hình `vite.config.js`.
-- Nếu backend yêu cầu API key, đặt file `.env`:
-  ```
-  VITE_API_BASE_URL=http://localhost:4000
-  VITE_API_KEY=changme
-  ```
+## Chạy
 
-## Build production
+\\\ash
+npm run dev    # Development
+npm run build  # Production
+\\\
 
-```
-npm run build
-```
-
-Output trong `dist/`. Có thể serve static bằng backend Express, Nginx hoặc bất kỳ static host nào.
-
-## Cấu trúc
-
-- `src/App.jsx`: bố cục chính (3 tab dashboard).
-- `src/components/…`: các chart D3 (overview, pie, bar, line, heatmap, scatter, KPI, top list).
-- `src/styles/main.scss`: style tổng thể.
-
-## Nhúng Canvas
-
-Sau khi deploy (ví dụ `https://analytics.example.com`):
-```html
-<iframe src="https://analytics.example.com?api_key=changme"
-        width="100%" height="900" frameborder="0"></iframe>
-```
-
-Hoặc tạo LTI/External Tool để đóng gói dashboard.
-
-Frontend này đồng bộ với dữ liệu từ `canvas_dwh` thông qua API backend, phục vụ dashboard phân tích học tập trên Canvas LMS.***

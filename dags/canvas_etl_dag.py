@@ -21,23 +21,58 @@ else:
 
 CANVAS_API_BASE_URL = os.getenv("CANVAS_API_BASE_URL", "http://web/api/v1/")
 CANVAS_API_TOKEN = os.getenv("CANVAS_API_TOKEN")
-COURSE_IDS = os.getenv("COURSE_IDS", "1,2,3,4").split(",")
 DB_CONNECTION_STRING = os.getenv("DB_CONNECTION_STRING")
 
 print(f"🔧 API URL: {CANVAS_API_BASE_URL}")
 print(f"🔧 Token exists: {bool(CANVAS_API_TOKEN)}")
-print(f"🔧 Course IDs: {COURSE_IDS}")
 
 HEADERS = {"Authorization": f"Bearer {CANVAS_API_TOKEN}"}
 
 
 # =====================================================
-# 1️⃣ Extract Courses Info
+# 🔍 Auto-discover all active courses
+# =====================================================
+def get_all_course_ids():
+    """Tự động lấy danh sách tất cả khóa học active từ Canvas API"""
+    all_courses = []
+    page = 1
+    
+    while True:
+        url = f"{CANVAS_API_BASE_URL}courses?state[]=available&per_page=100&page={page}"
+        res = requests.get(url, headers=HEADERS)
+        
+        if res.status_code != 200:
+            print(f"⚠️ Không thể lấy danh sách khóa học (HTTP {res.status_code})")
+            break
+        
+        courses = res.json()
+        if not courses:
+            break
+        
+        all_courses.extend([str(c['id']) for c in courses])
+        print(f"📘 Tìm thấy {len(courses)} khóa học ở trang {page}")
+        page += 1
+        
+        if page > 50:  # Safety limit
+            break
+    
+    print(f"🎓 Tổng cộng: {len(all_courses)} khóa học active")
+    return all_courses
+
+
+# =====================================================
+# 1️⃣ Extract Courses Info (Auto-discovery)
 # =====================================================
 def extract_courses():
+    """Tự động lấy tất cả khóa học active và lưu vào DWH"""
+    course_ids = get_all_course_ids()
+    
+    if not course_ids:
+        print("⚠️ Không tìm thấy khóa học nào.")
+        return
+    
     courses_data = []
-
-    for cid in COURSE_IDS:
+    for cid in course_ids:
         res = requests.get(f"{CANVAS_API_BASE_URL}courses/{cid}", headers=HEADERS)
         if res.status_code == 200:
             data = res.json()
@@ -57,16 +92,28 @@ def extract_courses():
     engine = create_engine(DB_CONNECTION_STRING)
     df.to_sql("dim_courses", engine, if_exists="replace", index=False)
     print(f"📚 Đã lưu {len(df)} khóa học vào bảng dim_courses.")
+    
+    # Lưu danh sách course IDs vào file tạm để các task khác sử dụng
+    pd.DataFrame({"course_id": course_ids}).to_csv("/tmp/course_ids.csv", index=False)
 
 
 # =====================================================
-# 2️⃣ Extract Students + Submissions (fix pagination)
+# 2️⃣ Extract Students + Submissions (Auto-discovery)
 # =====================================================
 def extract_submissions_data():
+    # Đọc danh sách course IDs từ file tạm
+    if not os.path.exists("/tmp/course_ids.csv"):
+        print("⚠️ Không tìm thấy danh sách khóa học. Hãy chạy task extract_courses trước.")
+        return
+    
+    df_courses = pd.read_csv("/tmp/course_ids.csv")
+    course_ids = df_courses["course_id"].astype(str).tolist()
+    print(f"🎓 Sẽ xử lý {len(course_ids)} khóa học: {course_ids}")
+    
     all_students = []
     all_submissions = []
 
-    for course_id in COURSE_IDS:
+    for course_id in course_ids:
         print(f"\n🎓 Đang xử lý khóa học {course_id}")
         page = 1
         prev_students = None

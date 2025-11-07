@@ -35,11 +35,8 @@ def fetch_student_summary() -> pd.DataFrame:
         SELECT
             *,
             CASE
-                WHEN avg_grade < 5 THEN 'At-Risk (Yeu <5)'
-                WHEN avg_grade >= 5 AND avg_grade < 7 AND late_ratio > 0.4
-                    THEN 'At-Risk (Luoi 5-7 + tre)'
-                WHEN avg_grade >= 7 THEN 'Kha/Gioi (>=7)'
-                ELSE 'On dinh (5-7, dung han)'
+                WHEN avg_grade < 5 THEN 'Cao'
+                ELSE 'Thấp'
             END AS risk_bucket
         FROM summary
     """
