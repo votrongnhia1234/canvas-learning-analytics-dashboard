@@ -5,6 +5,7 @@
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+import subprocess
 from datetime import datetime
 import requests
 import pandas as pd
@@ -22,11 +23,18 @@ else:
 CANVAS_API_BASE_URL = os.getenv("CANVAS_API_BASE_URL", "http://web/api/v1/")
 CANVAS_API_TOKEN = os.getenv("CANVAS_API_TOKEN")
 DB_CONNECTION_STRING = os.getenv("DB_CONNECTION_STRING")
+# Force Host header to match Canvas dev domain to avoid 403 on internal service name
+CANVAS_API_HOST = os.getenv("CANVAS_API_HOST", "localhost:3000")
 
 print(f"🔧 API URL: {CANVAS_API_BASE_URL}")
 print(f"🔧 Token exists: {bool(CANVAS_API_TOKEN)}")
 
-HEADERS = {"Authorization": f"Bearer {CANVAS_API_TOKEN}"}
+HEADERS = {
+    "Authorization": f"Bearer {CANVAS_API_TOKEN}",
+    "Host": CANVAS_API_HOST,
+    "Accept": "application/json",
+    "X-Requested-With": "XMLHttpRequest",
+}
 
 
 # =====================================================
@@ -190,199 +198,3 @@ def extract_submissions_data():
 
                 cleaned_batch = []
                 missing_user_ids = 0
-                for s in data:
-                    user_info = s.get("user") or {}
-                    user_id = user_info.get("id")
-                    if user_id is None:
-                        missing_user_ids += 1
-
-                    cleaned_batch.append(
-                        {
-                            "id": s.get("id"),
-                            "user_id": user_id,
-                            "assignment_id": s.get("assignment_id"),
-                            "submitted_at": s.get("submitted_at"),
-                            "grade": s.get("grade"),
-                            "late": s.get("late"),
-                            "course_id": str(course_id),
-                        }
-                    )
-
-                all_submissions.extend(cleaned_batch)
-                print(f"📄 {len(cleaned_batch)} submissions (assignment {a_id}, page {sub_page})")
-                if missing_user_ids:
-                    print(
-                        f"⚠️ Có {missing_user_ids} submissions thiếu user.id ở assignment {a_id} (course {course_id})"
-                    )
-
-                prev_subs = data
-                sub_page += 1
-
-                if sub_page > 200:
-                    print("⚠️ Dừng lấy submissions sau 200 trang.")
-                    break
-
-    # --- Lưu tạm dữ liệu ---
-    pd.DataFrame(all_students).to_csv("/tmp/raw_students.csv", index=False)
-    pd.DataFrame(all_submissions).to_csv("/tmp/raw_submissions.csv", index=False)
-    print(f"📦 Hoàn tất trích xuất: {len(all_students)} sinh viên, {len(all_submissions)} submissions.")
-
-
-# # =====================================================
-# # 3️⃣ Transform + Load
-# # =====================================================
-# def transform_and_load_data():
-#     students_csv = "/tmp/raw_students.csv"
-#     submissions_csv = "/tmp/raw_submissions.csv"
-
-#     if not os.path.exists(students_csv) or not os.path.exists(submissions_csv):
-#         print("⚠️ Thiếu file dữ liệu thô. Hãy chạy task extract trước.")
-#         return
-
-#     try:
-#         df_students_raw = pd.read_csv(students_csv)
-#         df_subs_raw = pd.read_csv(submissions_csv)
-#     except pd.errors.EmptyDataError:
-#         print("⚠️ File CSV rỗng. Không có dữ liệu để xử lý.")
-#         return
-
-#     if df_students_raw.empty or df_subs_raw.empty:
-#         print("⚠️ Dữ liệu rỗng. Không thể tiếp tục transform.")
-#         return
-
-#     # --- Làm sạch dữ liệu sinh viên ---
-#     df_students = df_students_raw[["id", "name", "login_id"]].drop_duplicates(subset=["id"])
-#     df_students.columns = ["student_id", "student_name", "student_email"]
-
-#     # --- Làm sạch submissions ---
-#     cols_needed = ["id", "user.id", "assignment_id", "submitted_at", "grade", "late", "course_id"]
-#     df_facts = df_subs_raw[[c for c in cols_needed if c in df_subs_raw.columns]].rename(
-#         columns={"id": "submission_id", "user.id": "student_id"}
-#     )
-#     df_facts["submitted_at"] = pd.to_datetime(df_facts["submitted_at"], errors="coerce")
-#     df_facts["grade"] = pd.to_numeric(df_facts["grade"], errors="coerce")
-
-#     # --- Nạp vào DB ---
-#     engine = create_engine(DB_CONNECTION_STRING)
-#     with engine.connect() as conn:
-#         df_students.to_sql("dim_students", conn, if_exists="replace", index=False)
-#         df_facts.to_sql("fact_submissions", conn, if_exists="replace", index=False)
-
-#     print(f"👩‍🎓 {len(df_students)} sinh viên → dim_students")
-#     print(f"📊 {len(df_facts)} submissions → fact_submissions")
-
-# =====================================================
-# 3️⃣ Transform + Load (CÓ FIX student_id)
-# =====================================================
-def transform_and_load_data():
-    students_csv = "/tmp/raw_students.csv"
-    submissions_csv = "/tmp/raw_submissions.csv"
-
-    if not os.path.exists(students_csv) or not os.path.exists(submissions_csv):
-        print("⚠️ Thiếu file dữ liệu thô. Hãy chạy task extract trước.")
-        return
-
-    try:
-        df_students_raw = pd.read_csv(students_csv)
-        df_subs_raw = pd.read_csv(submissions_csv)
-    except pd.errors.EmptyDataError:
-        print("⚠️ File CSV rỗng. Không có dữ liệu để xử lý.")
-        return
-
-    if df_students_raw.empty or df_subs_raw.empty:
-        print("⚠️ Dữ liệu rỗng. Không thể tiếp tục transform.")
-        return
-
-    # --- Làm sạch dữ liệu sinh viên ---
-    df_students = (
-        df_students_raw[["id", "name", "login_id"]]
-        .drop_duplicates(subset=["id"])
-        .rename(columns={"id": "student_id", "name": "student_name", "login_id": "student_email"})
-    )
-    df_students["student_email"] = df_students["student_email"].fillna("")
-    df_students["student_id"] = pd.to_numeric(df_students["student_id"], errors="coerce")
-    missing_student_ids = df_students["student_id"].isna().sum()
-    if missing_student_ids:
-        print(f"⚠️ Bỏ {missing_student_ids} bản ghi sinh viên vì thiếu student_id")
-        df_students = df_students.dropna(subset=["student_id"])
-    df_students["student_id"] = df_students["student_id"].astype("Int64").astype(str)
-
-    # --- Làm sạch dữ liệu submissions ---
-    # Một số submissions có thể không có "user_id" → loại bỏ nếu thiếu
-    if "user_id" not in df_subs_raw.columns:
-        print("⚠️ Không tìm thấy cột 'user_id' trong submissions. Sẽ bỏ qua phần student_id.")
-        df_subs_raw["user_id"] = None
-
-    cols_needed = [
-        "id",
-        "user_id",
-        "assignment_id",
-        "submitted_at",
-        "grade",
-        "late",
-        "course_id",
-    ]
-    df_facts = (
-        df_subs_raw[[c for c in cols_needed if c in df_subs_raw.columns]]
-        .rename(columns={"id": "submission_id", "user_id": "student_id"})
-    )
-    missing_submission_ids = df_facts["student_id"].isna().sum()
-    if missing_submission_ids:
-        print(f"⚠️ Bỏ {missing_submission_ids} submissions vì thiếu student_id")
-        df_facts = df_facts.dropna(subset=["student_id"])
-
-    # --- Làm sạch kiểu dữ liệu ---
-    df_facts["submitted_at"] = pd.to_datetime(df_facts["submitted_at"], errors="coerce")
-    df_facts["grade"] = pd.to_numeric(df_facts["grade"], errors="coerce")
-    df_facts["late"] = df_facts["late"].fillna(False).astype(bool)
-    df_facts["student_id"] = pd.to_numeric(df_facts["student_id"], errors="coerce")
-    coercion_missing = df_facts["student_id"].isna().sum()
-    if coercion_missing:
-        print(f"⚠️ Bỏ thêm {coercion_missing} submissions vì không thể chuyển student_id sang số")
-        df_facts = df_facts.dropna(subset=["student_id"])
-    df_facts["student_id"] = df_facts["student_id"].astype("Int64").astype(str)
-    df_facts["course_id"] = df_facts["course_id"].astype(str)
-
-    # --- Gắn thông tin sinh viên (JOIN từ dim_students) ---
-    df_facts = df_facts.merge(
-        df_students[["student_id", "student_name"]],
-        on="student_id",
-        how="left"
-    )
-
-    # --- Ghi vào Data Warehouse ---
-    engine = create_engine(DB_CONNECTION_STRING)
-    with engine.connect() as conn:
-        df_students.to_sql("dim_students", conn, if_exists="replace", index=False)
-        df_facts.to_sql("fact_submissions", conn, if_exists="replace", index=False)
-
-    print(f"👩‍🎓 {len(df_students)} sinh viên → dim_students")
-    print(f"📊 {len(df_facts)} submissions (có student_id) → fact_submissions")
-
-# =====================================================
-# DAG Definition
-# =====================================================
-with DAG(
-    dag_id="canvas_etl_pipeline_local",
-    start_date=datetime(2025, 10, 1),
-    schedule="@daily",
-    catchup=False,
-    tags=["canvas", "etl", "local"],
-) as dag:
-
-    extract_courses_task = PythonOperator(
-        task_id="extract_courses",
-        python_callable=extract_courses,
-    )
-
-    extract_submissions_task = PythonOperator(
-        task_id="extract_submissions_data",
-        python_callable=extract_submissions_data,
-    )
-
-    transform_and_load_task = PythonOperator(
-        task_id="transform_and_load",
-        python_callable=transform_and_load_data,
-    )
-
-    extract_courses_task >> extract_submissions_task >> transform_and_load_task

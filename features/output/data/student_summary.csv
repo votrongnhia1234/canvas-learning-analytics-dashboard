@@ -1,102 +1,102 @@
 student_id,student_name,student_email,avg_grade,submission_count,late_count,late_ratio,risk_bucket
-88,Phạm Văn Nam,student184@example.com,2.325,20,2,0.1,At-Risk (Yeu <5)
-73,Phan Thị Diễm,student169@example.com,5.7250000000000005,20,14,0.7,At-Risk (Luoi 5-7 + tre)
-91,Phan Thị Phương,student187@example.com,2.675,20,0,0.0,At-Risk (Yeu <5)
-3,Trần Thị B,student2@example.com,0.0,20,0,0.0,"On dinh (5-7, dung han)"
-82,Phan Văn Khải,student178@example.com,5.925,20,11,0.55,At-Risk (Luoi 5-7 + tre)
-38,Đặng Văn Kiên,student134@example.com,2.52,20,1,0.05,At-Risk (Yeu <5)
-41,Trần Thị Lệ,student137@example.com,2.7,20,3,0.15,At-Risk (Yeu <5)
-77,Trần Thị Hằng,student173@example.com,5.92,20,9,0.45,At-Risk (Luoi 5-7 + tre)
-101,Đặng Thị Tuyết,student197@example.com,8.545,20,2,0.1,Kha/Gioi (>=7)
-19,Phan Thị Oanh,student115@example.com,8.71,20,1,0.05,Kha/Gioi (>=7)
-76,Nguyễn Văn Giang,student172@example.com,2.17,20,1,0.05,At-Risk (Yeu <5)
-80,Hoàng Văn Huy,student176@example.com,9.055,20,0,0.0,Kha/Gioi (>=7)
-40,Nguyễn Văn Long,student136@example.com,2.815,20,4,0.2,At-Risk (Yeu <5)
-8,Hoàng Văn Dũng,student104@example.com,2.395,20,1,0.05,At-Risk (Yeu <5)
-66,Vũ Văn Việt,student162@example.com,2.8250000000000006,20,2,0.1,At-Risk (Yeu <5)
-55,Phan Thị Thanh,student151@example.com,2.45,20,3,0.15,At-Risk (Yeu <5)
-79,Phạm Thị Hòa,student175@example.com,2.2600000000000002,20,0,0.0,At-Risk (Yeu <5)
-25,Phạm Thị Thảo,student121@example.com,2.36,20,0,0.0,At-Risk (Yeu <5)
-97,Phạm Thị Thu,student193@example.com,8.52,20,5,0.25,Kha/Gioi (>=7)
-84,Vũ Văn Lâm,student180@example.com,2.645,20,0,0.0,At-Risk (Yeu <5)
-23,Trần Thị Quỳnh,student119@example.com,8.72,20,2,0.1,Kha/Gioi (>=7)
-50,Trần Văn Quân,student146@example.com,2.23,20,0,0.0,At-Risk (Yeu <5)
-12,Vũ Văn Khang,student108@example.com,2.29,20,4,0.2,At-Risk (Yeu <5)
-29,Đặng Thị Trang,student125@example.com,2.865,20,2,0.1,At-Risk (Yeu <5)
-36,Bùi Văn Hậu,student132@example.com,2.21,20,3,0.15,At-Risk (Yeu <5)
-4,Nguyễn Văn An,student100@example.com,2.585,20,3,0.15,At-Risk (Yeu <5)
-15,Lê Thị Mai,student111@example.com,2.08,20,3,0.15,At-Risk (Yeu <5)
-61,Phạm Thị Trang,student157@example.com,8.215,20,1,0.05,Kha/Gioi (>=7)
-5,Trần Thị Bích,student101@example.com,5.92,20,11,0.55,At-Risk (Luoi 5-7 + tre)
-51,Lê Thị Quỳnh,student147@example.com,2.5300000000000002,20,5,0.25,At-Risk (Yeu <5)
-57,Vũ Thị Thảo,student153@example.com,8.709999999999997,20,4,0.2,Kha/Gioi (>=7)
-31,Nguyễn Thị Tuyết,student127@example.com,2.5600000000000005,20,1,0.05,At-Risk (Yeu <5)
-62,Hoàng Văn Trường,student158@example.com,2.5949999999999998,20,0,0.0,At-Risk (Yeu <5)
-102,Vũ Văn Vinh,student198@example.com,2.75,20,2,0.1,At-Risk (Yeu <5)
-92,Đặng Văn Quý,student188@example.com,6.165,20,12,0.6,At-Risk (Luoi 5-7 + tre)
-7,Phạm Thị Dung,student103@example.com,8.304999999999998,20,3,0.15,Kha/Gioi (>=7)
-90,Bùi Văn Phúc,student186@example.com,2.185,20,3,0.15,At-Risk (Yeu <5)
-70,Phạm Văn Bình,student166@example.com,2.9200000000000004,20,1,0.05,At-Risk (Yeu <5)
-81,Bùi Thị Hương,student177@example.com,5.985,20,10,0.5,At-Risk (Luoi 5-7 + tre)
-56,Đặng Văn Tiến,student152@example.com,3.0949999999999998,20,3,0.15,At-Risk (Yeu <5)
-24,Lê Văn Sơn,student120@example.com,5.864999999999999,20,11,0.55,At-Risk (Luoi 5-7 + tre)
-37,Phan Thị Hiền,student133@example.com,2.4499999999999997,20,1,0.05,At-Risk (Yeu <5)
-26,Hoàng Văn Thắng,student122@example.com,6.0649999999999995,20,9,0.45,At-Risk (Luoi 5-7 + tre)
-67,Nguyễn Thị Yến,student163@example.com,2.7199999999999998,20,1,0.05,At-Risk (Yeu <5)
-11,Đặng Thị Hương,student107@example.com,8.669999999999998,20,3,0.15,Kha/Gioi (>=7)
-95,Trần Thị Thanh,student191@example.com,3.38,20,3,0.15,At-Risk (Yeu <5)
-54,Bùi Văn Thành,student150@example.com,2.545,20,3,0.15,At-Risk (Yeu <5)
-58,Nguyễn Văn Thịnh,student154@example.com,2.27,20,3,0.15,At-Risk (Yeu <5)
-30,Vũ Văn Tùng,student126@example.com,8.690000000000001,20,1,0.05,Kha/Gioi (>=7)
-28,Phan Văn Toàn,student124@example.com,6.075,20,11,0.55,At-Risk (Luoi 5-7 + tre)
-86,Trần Văn Minh,student182@example.com,6.135,20,12,0.6,At-Risk (Luoi 5-7 + tre)
-27,Bùi Thị Thanh,student123@example.com,5.894999999999998,20,8,0.4,"On dinh (5-7, dung han)"
-20,Đặng Văn Phúc,student116@example.com,5.845000000000001,20,10,0.5,At-Risk (Luoi 5-7 + tre)
-33,Lê Thị Vân,student129@example.com,2.5000000000000004,20,2,0.1,At-Risk (Yeu <5)
-39,Vũ Thị Kim,student135@example.com,8.854999999999999,20,1,0.05,Kha/Gioi (>=7)
-99,Bùi Thị Trang,student195@example.com,2.8699999999999997,20,1,0.05,At-Risk (Yeu <5)
-93,Vũ Thị Quỳnh,student189@example.com,6.019999999999999,20,5,0.25,"On dinh (5-7, dung han)"
-21,Vũ Thị Phương,student117@example.com,8.165,20,2,0.1,Kha/Gioi (>=7)
-74,Đặng Văn Đức,student170@example.com,8.465,20,3,0.15,Kha/Gioi (>=7)
-87,Lê Thị My,student183@example.com,2.705,20,2,0.1,At-Risk (Yeu <5)
-75,Vũ Thị Duyên,student171@example.com,6.145,20,6,0.3,"On dinh (5-7, dung han)"
-35,Hoàng Thị Hạnh,student131@example.com,5.865,20,11,0.55,At-Risk (Luoi 5-7 + tre)
-22,Nguyễn Văn Quang,student118@example.com,8.805000000000001,20,3,0.15,Kha/Gioi (>=7)
-17,Hoàng Thị Nga,student113@example.com,2.7099999999999995,20,0,0.0,At-Risk (Yeu <5)
-53,Hoàng Thị Sen,student149@example.com,6.190000000000001,20,14,0.7,At-Risk (Luoi 5-7 + tre)
-2,Nguyễn Văn A,student1@example.com,0.0,20,0,0.0,"On dinh (5-7, dung han)"
-60,Lê Văn Tài,student156@example.com,6.205000000000002,20,12,0.6,At-Risk (Luoi 5-7 + tre)
-44,Hoàng Văn Mạnh,student140@example.com,8.655,20,3,0.15,Kha/Gioi (>=7)
-10,Phan Văn Hùng,student106@example.com,2.1449999999999996,20,3,0.15,At-Risk (Yeu <5)
-94,Nguyễn Văn Sang,student190@example.com,2.6649999999999996,20,4,0.2,At-Risk (Yeu <5)
-96,Lê Văn Thắng,student192@example.com,1.8250000000000004,20,5,0.25,At-Risk (Yeu <5)
-47,Đặng Thị Nhung,student143@example.com,8.525000000000002,20,3,0.15,Kha/Gioi (>=7)
-9,Bùi Thị Hoa,student105@example.com,2.2600000000000002,20,2,0.1,At-Risk (Yeu <5)
-6,Lê Văn Cường,student102@example.com,2.6949999999999994,20,1,0.05,At-Risk (Yeu <5)
-52,Phạm Văn Sơn,student148@example.com,2.1100000000000003,20,1,0.05,At-Risk (Yeu <5)
-42,Lê Văn Lộc,student138@example.com,2.7600000000000002,20,2,0.1,At-Risk (Yeu <5)
-98,Hoàng Văn Tài,student194@example.com,5.885,20,6,0.3,"On dinh (5-7, dung han)"
-32,Trần Văn Việt,student128@example.com,2.5100000000000002,20,2,0.1,At-Risk (Yeu <5)
-72,Bùi Văn Công,student168@example.com,8.59,20,2,0.1,Kha/Gioi (>=7)
-63,Bùi Thị Tâm,student159@example.com,2.7650000000000006,20,3,0.15,At-Risk (Yeu <5)
-100,Phan Văn Tuấn,student196@example.com,8.54,20,1,0.05,Kha/Gioi (>=7)
-85,Nguyễn Thị Loan,student181@example.com,8.21,20,4,0.2,Kha/Gioi (>=7)
-68,Trần Văn An,student164@example.com,8.530000000000001,20,2,0.1,Kha/Gioi (>=7)
-59,Trần Thị Thúy,student155@example.com,8.59,20,2,0.1,Kha/Gioi (>=7)
-13,Nguyễn Thị Lan,student109@example.com,2.7850000000000006,20,0,0.0,At-Risk (Yeu <5)
-45,Bùi Thị Mỹ,student141@example.com,2.4199999999999995,20,2,0.1,At-Risk (Yeu <5)
-78,Lê Văn Hải,student174@example.com,2.425,20,0,0.0,At-Risk (Yeu <5)
-64,Phan Văn Tùng,student160@example.com,8.315000000000001,20,6,0.3,Kha/Gioi (>=7)
-49,Nguyễn Thị Phượng,student145@example.com,1.705,20,1,0.05,At-Risk (Yeu <5)
-89,Hoàng Thị Nga,student185@example.com,8.73,20,3,0.15,Kha/Gioi (>=7)
-65,Đặng Thị Vân,student161@example.com,3.02,20,1,0.05,At-Risk (Yeu <5)
-71,Hoàng Thị Châu,student167@example.com,8.529999999999998,20,0,0.0,Kha/Gioi (>=7)
-46,Phan Văn Nam,student142@example.com,2.9,20,2,0.1,At-Risk (Yeu <5)
-43,Phạm Thị Lý,student139@example.com,2.0349999999999997,20,3,0.15,At-Risk (Yeu <5)
-48,Vũ Văn Phong,student144@example.com,8.450000000000001,20,2,0.1,Kha/Gioi (>=7)
-83,Đặng Thị Liên,student179@example.com,8.540000000000001,20,1,0.05,Kha/Gioi (>=7)
-18,Bùi Văn Nam,student114@example.com,2.365,20,2,0.1,At-Risk (Yeu <5)
-16,Phạm Văn Minh,student112@example.com,1.9349999999999998,20,3,0.15,At-Risk (Yeu <5)
-34,Phạm Văn Hòa,student130@example.com,5.949999999999999,20,10,0.5,At-Risk (Luoi 5-7 + tre)
-69,Lê Thị Ánh,student165@example.com,2.4199999999999995,20,1,0.05,At-Risk (Yeu <5)
-14,Trần Văn Linh,student110@example.com,2.7949999999999995,20,3,0.15,At-Risk (Yeu <5)
+88,Phạm Văn Nam,student184@example.com,8.75,20,1,0.05,Thấp
+73,Phan Thị Diễm,student169@example.com,2.43,20,4,0.2,Cao
+91,Phan Thị Phương,student187@example.com,2.23,20,2,0.1,Cao
+3,Trần Thị B,student2@example.com,0.0,20,0,0.0,Thấp
+82,Phan Văn Khải,student178@example.com,6.045000000000001,20,11,0.55,Thấp
+38,Đặng Văn Kiên,student134@example.com,5.9350000000000005,20,9,0.45,Thấp
+41,Trần Thị Lệ,student137@example.com,8.48,20,1,0.05,Thấp
+77,Trần Thị Hằng,student173@example.com,8.535,20,1,0.05,Thấp
+101,Đặng Thị Tuyết,student197@example.com,5.985000000000001,20,10,0.5,Thấp
+19,Phan Thị Oanh,student115@example.com,5.989999999999999,20,12,0.6,Thấp
+76,Nguyễn Văn Giang,student172@example.com,8.220000000000002,20,4,0.2,Thấp
+80,Hoàng Văn Huy,student176@example.com,2.55,20,3,0.15,Cao
+40,Nguyễn Văn Long,student136@example.com,2.285,20,1,0.05,Cao
+8,Hoàng Văn Dũng,student104@example.com,2.5249999999999995,20,1,0.05,Cao
+66,Vũ Văn Việt,student162@example.com,8.715,20,2,0.1,Thấp
+55,Phan Thị Thanh,student151@example.com,8.459999999999999,20,5,0.25,Thấp
+79,Phạm Thị Hòa,student175@example.com,2.21,20,1,0.05,Cao
+25,Phạm Thị Thảo,student121@example.com,8.360000000000003,20,0,0.0,Thấp
+97,Phạm Thị Thu,student193@example.com,8.915,20,5,0.25,Thấp
+84,Vũ Văn Lâm,student180@example.com,2.7499999999999996,20,3,0.15,Cao
+23,Trần Thị Quỳnh,student119@example.com,2.1100000000000003,20,1,0.05,Cao
+50,Trần Văn Quân,student146@example.com,2.3850000000000007,20,2,0.1,Cao
+12,Vũ Văn Khang,student108@example.com,2.11,20,5,0.25,Cao
+29,Đặng Thị Trang,student125@example.com,2.52,20,1,0.05,Cao
+36,Bùi Văn Hậu,student132@example.com,6.145000000000001,20,8,0.4,Thấp
+4,Nguyễn Văn An,student100@example.com,2.3500000000000005,20,2,0.1,Cao
+15,Lê Thị Mai,student111@example.com,8.5,20,3,0.15,Thấp
+61,Phạm Thị Trang,student157@example.com,2.325,20,6,0.3,Cao
+5,Trần Thị Bích,student101@example.com,5.664999999999999,20,10,0.5,Thấp
+51,Lê Thị Quỳnh,student147@example.com,2.6599999999999997,20,1,0.05,Cao
+57,Vũ Thị Thảo,student153@example.com,2.425,20,0,0.0,Cao
+31,Nguyễn Thị Tuyết,student127@example.com,5.9799999999999995,20,7,0.35,Thấp
+62,Hoàng Văn Trường,student158@example.com,8.414999999999997,20,3,0.15,Thấp
+102,Vũ Văn Vinh,student198@example.com,8.23,20,2,0.1,Thấp
+92,Đặng Văn Quý,student188@example.com,2.01,20,1,0.05,Cao
+7,Phạm Thị Dung,student103@example.com,2.3349999999999995,20,1,0.05,Cao
+90,Bùi Văn Phúc,student186@example.com,2.9650000000000003,20,0,0.0,Cao
+70,Phạm Văn Bình,student166@example.com,6.039999999999999,20,9,0.45,Thấp
+81,Bùi Thị Hương,student177@example.com,2.2199999999999998,20,1,0.05,Cao
+56,Đặng Văn Tiến,student152@example.com,8.309999999999999,20,2,0.1,Thấp
+24,Lê Văn Sơn,student120@example.com,6.025,20,11,0.55,Thấp
+37,Phan Thị Hiền,student133@example.com,2.225,20,0,0.0,Cao
+26,Hoàng Văn Thắng,student122@example.com,8.190000000000001,20,2,0.1,Thấp
+67,Nguyễn Thị Yến,student163@example.com,2.0500000000000003,20,2,0.1,Cao
+11,Đặng Thị Hương,student107@example.com,6.245,20,11,0.55,Thấp
+95,Trần Thị Thanh,student191@example.com,5.88,20,6,0.3,Thấp
+54,Bùi Văn Thành,student150@example.com,2.2949999999999995,20,4,0.2,Cao
+58,Nguyễn Văn Thịnh,student154@example.com,2.585,20,2,0.1,Cao
+30,Vũ Văn Tùng,student126@example.com,2.6399999999999997,20,2,0.1,Cao
+28,Phan Văn Toàn,student124@example.com,5.96,20,13,0.65,Thấp
+86,Trần Văn Minh,student182@example.com,8.535,20,2,0.1,Thấp
+27,Bùi Thị Thanh,student123@example.com,2.37,20,1,0.05,Cao
+20,Đặng Văn Phúc,student116@example.com,2.2800000000000002,20,1,0.05,Cao
+33,Lê Thị Vân,student129@example.com,2.5449999999999995,20,5,0.25,Cao
+39,Vũ Thị Kim,student135@example.com,2.5900000000000003,20,2,0.1,Cao
+99,Bùi Thị Trang,student195@example.com,6.09,20,9,0.45,Thấp
+93,Vũ Thị Quỳnh,student189@example.com,8.69,20,3,0.15,Thấp
+21,Vũ Thị Phương,student117@example.com,2.12,20,2,0.1,Cao
+74,Đặng Văn Đức,student170@example.com,2.325,20,3,0.15,Cao
+87,Lê Thị My,student183@example.com,2.8200000000000003,20,4,0.2,Cao
+75,Vũ Thị Duyên,student171@example.com,7.975,20,2,0.1,Thấp
+35,Hoàng Thị Hạnh,student131@example.com,2.5,20,1,0.05,Cao
+22,Nguyễn Văn Quang,student118@example.com,8.584999999999999,20,3,0.15,Thấp
+17,Hoàng Thị Nga,student113@example.com,2.3950000000000005,20,3,0.15,Cao
+53,Hoàng Thị Sen,student149@example.com,5.679999999999999,20,8,0.4,Thấp
+2,Nguyễn Văn A,student1@example.com,0.0,20,0,0.0,Thấp
+60,Lê Văn Tài,student156@example.com,2.9899999999999993,20,1,0.05,Cao
+44,Hoàng Văn Mạnh,student140@example.com,8.48,20,0,0.0,Thấp
+10,Phan Văn Hùng,student106@example.com,2.805,20,1,0.05,Cao
+94,Nguyễn Văn Sang,student190@example.com,8.59,20,1,0.05,Thấp
+96,Lê Văn Thắng,student192@example.com,2.3400000000000003,20,5,0.25,Cao
+47,Đặng Thị Nhung,student143@example.com,2.3099999999999996,20,4,0.2,Cao
+9,Bùi Thị Hoa,student105@example.com,6.05,20,11,0.55,Thấp
+6,Lê Văn Cường,student102@example.com,7.989999999999999,20,1,0.05,Thấp
+52,Phạm Văn Sơn,student148@example.com,2.3400000000000007,20,0,0.0,Cao
+42,Lê Văn Lộc,student138@example.com,2.2649999999999997,20,2,0.1,Cao
+98,Hoàng Văn Tài,student194@example.com,8.4,20,1,0.05,Thấp
+32,Trần Văn Việt,student128@example.com,5.924999999999999,20,12,0.6,Thấp
+72,Bùi Văn Công,student168@example.com,2.6249999999999996,20,2,0.1,Cao
+63,Bùi Thị Tâm,student159@example.com,2.12,20,4,0.2,Cao
+100,Phan Văn Tuấn,student196@example.com,2.485,20,3,0.15,Cao
+85,Nguyễn Thị Loan,student181@example.com,2.7350000000000003,20,0,0.0,Cao
+68,Trần Văn An,student164@example.com,8.535,20,2,0.1,Thấp
+59,Trần Thị Thúy,student155@example.com,8.055,20,2,0.1,Thấp
+13,Nguyễn Thị Lan,student109@example.com,2.63,20,0,0.0,Cao
+45,Bùi Thị Mỹ,student141@example.com,8.435000000000002,20,3,0.15,Thấp
+78,Lê Văn Hải,student174@example.com,2.625,20,2,0.1,Cao
+64,Phan Văn Tùng,student160@example.com,2.3,20,1,0.05,Cao
+49,Nguyễn Thị Phượng,student145@example.com,2.47,20,4,0.2,Cao
+89,Hoàng Thị Nga,student185@example.com,2.59,20,1,0.05,Cao
+65,Đặng Thị Vân,student161@example.com,2.42,20,1,0.05,Cao
+71,Hoàng Thị Châu,student167@example.com,2.645,20,1,0.05,Cao
+46,Phan Văn Nam,student142@example.com,2.325,20,3,0.15,Cao
+43,Phạm Thị Lý,student139@example.com,2.425,20,3,0.15,Cao
+48,Vũ Văn Phong,student144@example.com,5.785,20,12,0.6,Thấp
+83,Đặng Thị Liên,student179@example.com,2.1849999999999996,20,4,0.2,Cao
+18,Bùi Văn Nam,student114@example.com,5.944999999999999,20,7,0.35,Thấp
+16,Phạm Văn Minh,student112@example.com,6.055000000000001,20,8,0.4,Thấp
+34,Phạm Văn Hòa,student130@example.com,8.905,20,2,0.1,Thấp
+69,Lê Thị Ánh,student165@example.com,8.815,20,1,0.05,Thấp
+14,Trần Văn Linh,student110@example.com,2.445,20,2,0.1,Cao
