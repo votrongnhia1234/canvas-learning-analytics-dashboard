@@ -71,8 +71,8 @@ export const fetchCourseSummary = async () => {
       COALESCE(rbc.total_students, 0) AS total_students,
       COALESCE(ROUND((rbc.at_risk_ratio::numeric), 4), 0) AS at_risk_ratio
     FROM dim_courses dc
-    LEFT JOIN base ON base.course_id = dc.course_id
-    LEFT JOIN risk_by_course rbc ON rbc.course_id = dc.course_id
+    LEFT JOIN base ON base.course_id::bigint = dc.course_id::bigint
+    LEFT JOIN risk_by_course rbc ON rbc.course_id::bigint = dc.course_id::bigint
     ORDER BY dc.course_id::numeric NULLS LAST, dc.course_id;
   `;
 
@@ -195,7 +195,7 @@ export const fetchAssignmentCompletion = async () => {
       COALESCE(ass.total_students, 0) AS total_students,
       COALESCE(ROUND(ass.completion_rate::numeric, 4), 0) AS completion_rate
     FROM dim_courses dc
-    LEFT JOIN assignment_stats ass ON ass.course_id = dc.course_id
+    LEFT JOIN assignment_stats ass ON ass.course_id::bigint = dc.course_id::bigint
     ORDER BY dc.course_id
   `;
   const { rows } = await query(sql);
@@ -245,7 +245,7 @@ export const fetchCourseComparison = async () => {
       COALESCE(ROUND(cm.late_ratio::numeric, 4), 0) AS late_ratio,
       cm.last_activity
     FROM dim_courses dc
-    LEFT JOIN course_metrics cm ON cm.course_id = dc.course_id
+    LEFT JOIN course_metrics cm ON cm.course_id::bigint = dc.course_id::bigint
     ORDER BY dc.course_id
   `;
   const { rows } = await query(sql);
