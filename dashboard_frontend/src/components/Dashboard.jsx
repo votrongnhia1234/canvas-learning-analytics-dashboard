@@ -89,6 +89,7 @@ const Dashboard = ({ data }) => {
           total_submissions: course.total_submissions || 0,
           enrolled_students: course.student_count || 1
         }))
+  const defaultStudentId = students?.[0]?.student_id || ''
 
   return (
     <div className="la-stack">
@@ -153,6 +154,14 @@ const Dashboard = ({ data }) => {
           </div>
         </article>
       </section>
+
+      {/* <section className="la-panel">
+        <PanelHeader
+          title="Chatbot hoc tap"
+          subtitle="Hoi bang ngon ngu tu nhien; tra cuu canvas_dwh + goi LLM neu can"
+        />
+        <ChatbotPanel defaultStudentId={defaultStudentId} />
+      </section> */}
     </div>
   )
 }

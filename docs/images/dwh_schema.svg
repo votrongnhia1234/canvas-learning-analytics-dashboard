@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620">
+  <style>
+    .title{font:700 20px sans-serif;fill:#111}
+    .label{font:13px sans-serif;fill:#111}
+    .small{font:12px sans-serif;fill:#333}
+    .box{rx:8;ry:8;stroke:#333;stroke-width:1;fill:#f8fbff}
+    .arrow{stroke:#111;stroke-width:1.5;marker-end:url(#arrow)}
+    .key{font:12px monospace;fill:#333}
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#111" />
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#fff"/>
+  <text x="550" y="32" text-anchor="middle" class="title">Data Warehouse – Sơ đồ bảng</text>
+
+  <!-- Dimensions -->
+  <g transform="translate(40,80)">
+    <rect class="box" x="0" y="0" width="300" height="120"/>
+    <text class="label" x="150" y="24" text-anchor="middle">dim_courses</text>
+    <text class="key" x="16" y="50">course_id (PK)</text>
+    <text class="key" x="16" y="70">course_name</text>
+    <text class="key" x="16" y="90">term</text>
+  </g>
+
+  <g transform="translate(40,230)">
+    <rect class="box" x="0" y="0" width="300" height="120"/>
+    <text class="label" x="150" y="24" text-anchor="middle">dim_students</text>
+    <text class="key" x="16" y="50">student_id (PK)</text>
+    <text class="key" x="16" y="70">student_name</text>
+    <text class="key" x="16" y="90">email</text>
+  </g>
+
+  <g transform="translate(40,380)">
+    <rect class="box" x="0" y="0" width="300" height="120"/>
+    <text class="label" x="150" y="24" text-anchor="middle">dim_assignments</text>
+    <text class="key" x="16" y="50">assignment_id (PK)</text>
+    <text class="key" x="16" y="70">course_id (FK)</text>
+    <text class="key" x="16" y="90">title</text>
+  </g>
+
+  <!-- Fact -->
+  <g transform="translate(420,180)">
+    <rect class="box" x="0" y="0" width="320" height="180"/>
+    <text class="label" x="160" y="24" text-anchor="middle">fact_submissions</text>
+    <text class="key" x="16" y="50">submission_id (PK)</text>
+    <text class="key" x="16" y="70">course_id (FK)</text>
+    <text class="key" x="16" y="90">student_id (FK)</text>
+    <text class="key" x="16" y="110">assignment_id (FK)</text>
+    <text class="key" x="16" y="130">score · submitted_at · late</text>
+  </g>
+
+  <!-- Derived/Outputs -->
+  <g transform="translate(780,80)">
+    <rect class="box" x="0" y="0" width="280" height="120"/>
+    <text class="label" x="140" y="24" text-anchor="middle">student_features</text>
+    <text class="key" x="16" y="50">student_id (PK/FK)</text>
+    <text class="key" x="16" y="70">avg_grade · submission_count</text>
+    <text class="key" x="16" y="90">late_submission_ratio · risk_prob</text>
+  </g>
+
+  <g transform="translate(780,230)">
+    <rect class="box" x="0" y="0" width="280" height="100"/>
+    <text class="label" x="140" y="24" text-anchor="middle">risk_by_course</text>
+    <text class="key" x="16" y="50">course_id (FK) · risk_ratio</text>
+    <text class="key" x="16" y="70">updated_at</text>
+  </g>
+
+  <g transform="translate(780,360)">
+    <rect class="box" x="0" y="0" width="280" height="100"/>
+    <text class="label" x="140" y="24" text-anchor="middle">at_risk_students</text>
+    <text class="key" x="16" y="50">student_id (FK) · course_id (FK)</text>
+    <text class="key" x="16" y="70">risk_probability</text>
+  </g>
+
+  <!-- Relationships -->
+  <g>
+    <line class="arrow" x1="340" y1="140" x2="420" y2="210"/>
+    <line class="arrow" x1="340" y1="290" x2="420" y2="240"/>
+    <line class="arrow" x1="340" y1="440" x2="420" y2="290"/>
+    <line class="arrow" x1="740" y1="220" x2="780" y2="140"/>
+    <line class="arrow" x1="740" y1="260" x2="780" y2="270"/>
+    <line class="arrow" x1="740" y1="320" x2="780" y2="390"/>
+  </g>
+
+  <!-- Index notes -->
+  <g transform="translate(40,540)">
+    <text class="small">Tối ưu:</text>
+    <text class="small" x="80" y="0">CREATE INDEX idx_fact_submissions_course_time ON fact_submissions(course_id, submitted_at)</text>
+    <text class="small" x="80" y="20">CREATE INDEX idx_student_features_risk_prob ON student_features(risk_probability)</text>
+  </g>
+</svg>
+

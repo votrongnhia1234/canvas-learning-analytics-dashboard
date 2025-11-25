@@ -101,7 +101,7 @@ const CourseComparisonChart = ({ data }) => {
 
     const y = d3
       .scaleLinear()
-      .domain([0, 100])
+      .domain([0, 10])
       .range([height - margin.bottom, margin.top])
 
     const color = d3.scaleSequential().domain([0, data.length]).interpolator(d3.interpolateCool)

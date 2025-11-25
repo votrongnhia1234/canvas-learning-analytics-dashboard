@@ -34,9 +34,9 @@ export const CourseTreemap = ({ data }) => {
       .padding(2)
       .round(true)(treemapRoot)
 
-    const color = d3.scaleSequential()
-      .domain([0, 100])
-      .interpolator(d3.interpolateRdYlGn)
+    const color = d3.scaleLinear()
+      .domain([0, 5, 10])
+      .range(['#f1f5f9', '#93c5fd', '#2563eb'])
 
     const g = svg.append('g')
 
@@ -64,7 +64,7 @@ export const CourseTreemap = ({ data }) => {
       .attr('y', 25)
       .style('font-size', '14px')
       .style('font-weight', '700')
-      .style('fill', d => d.data.avg_grade >= 50 ? '#1e293b' : 'white')
+      .style('fill', d => d.data.avg_grade >= 5 ? '#1e293b' : 'white')
       .text(d => d.data.name)
       .each(function(d) {
         const text = d3.select(this)
@@ -82,7 +82,7 @@ export const CourseTreemap = ({ data }) => {
       .attr('x', 10)
       .attr('y', 45)
       .style('font-size', '13px')
-      .style('fill', d => d.data.avg_grade >= 50 ? '#475569' : 'rgba(255,255,255,0.9)')
+      .style('fill', d => d.data.avg_grade >= 5 ? '#475569' : 'rgba(255,255,255,0.9)')
       .text(d => `${d.data.student_count} SV`)
 
     cells.append('text')
@@ -90,14 +90,14 @@ export const CourseTreemap = ({ data }) => {
       .attr('y', 65)
       .style('font-size', '20px')
       .style('font-weight', '700')
-      .style('fill', d => d.data.avg_grade >= 50 ? '#0f172a' : 'white')
+      .style('fill', d => d.data.avg_grade >= 5 ? '#0f172a' : 'white')
       .text(d => `${d.data.avg_grade.toFixed(1)}đ`)
 
     cells.append('text')
       .attr('x', 10)
       .attr('y', 85)
       .style('font-size', '12px')
-      .style('fill', d => d.data.avg_grade >= 50 ? '#64748b' : 'rgba(255,255,255,0.8)')
+      .style('fill', d => d.data.avg_grade >= 5 ? '#64748b' : 'rgba(255,255,255,0.8)')
       .text(d => `${d.value} bài nộp`)
 
   }, [data])
@@ -232,11 +232,11 @@ export const RadialBarChart = ({ data }) => {
       .padding(0.1)
 
     const y = d3.scaleLinear()
-      .domain([0, 100])
+      .domain([0, 10])
       .range([innerRadius, outerRadius])
 
     const color = d3.scaleSequential()
-      .domain([0, 100])
+      .domain([0, 10])
       .interpolator(d3.interpolateRdYlGn)
 
     const arc = d3.arc()

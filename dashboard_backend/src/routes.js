@@ -13,19 +13,9 @@ import {
   fetchTopStudents,
   fetchRealtimeActivity
 } from "./analyticsService.js";
+import { sendChatMessage, getChatHistory, clearChatHistory } from "./chatService.js";
 
 const router = express.Router();
-
-const requireApiKey = (req, res, next) => {
-  const expected = process.env.API_KEY;
-  if (!expected) return next();
-  const provided =
-    req.headers["x-api-key"] || req.query.api_key || req.query.token;
-  if (provided && provided === expected) return next();
-  return res.status(401).json({ error: "Unauthorized" });
-};
-
-router.use(requireApiKey);
 
 router.get("/overview", async (_req, res, next) => {
   try {
@@ -91,7 +81,6 @@ router.get("/students/histogram", async (_req, res, next) => {
   }
 });
 
-// New endpoints
 router.get("/courses/assignments", async (_req, res, next) => {
   try {
     const data = await fetchAssignmentCompletion();
@@ -133,6 +122,43 @@ router.get("/activity/realtime", async (_req, res, next) => {
   try {
     const data = await fetchRealtimeActivity();
     res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/chat", async (req, res, next) => {
+  try {
+    const { message, sessionId, role, userId } = req.body || {};
+    if (!message || typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({ error: "message is required" });
+    }
+
+    const sid = sessionId || `session-${req.ip || "unknown"}`;
+    const payload = await sendChatMessage(message, sid, role, userId);
+    res.json({ sessionId: sid, ...payload });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/chat/history", async (req, res, next) => {
+  try {
+    const { sessionId } = req.query;
+    const sid = sessionId || `session-${req.ip || "unknown"}`;
+    const history = getChatHistory(sid);
+    res.json({ history, sessionId: sid });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/chat/clear", async (req, res, next) => {
+  try {
+    const { sessionId } = req.body || {};
+    const sid = sessionId || `session-${req.ip || "unknown"}`;
+    clearChatHistory(sid);
+    res.json({ message: "Chat history cleared", sessionId: sid });
   } catch (error) {
     next(error);
   }

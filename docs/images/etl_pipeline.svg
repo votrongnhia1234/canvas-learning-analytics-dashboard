@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520">
+  <style>
+    .title{font:700 20px sans-serif;fill:#111}
+    .label{font:13px sans-serif;fill:#111}
+    .small{font:12px sans-serif;fill:#333}
+    .box{rx:8;ry:8;stroke:#333;stroke-width:1;fill:#fff}
+    .box-yellow{fill:#fff7d6}
+    .arrow{stroke:#111;stroke-width:1.5;marker-end:url(#arrow)}
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#111" />
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#fff"/>
+  <text x="500" y="32" text-anchor="middle" class="title">Airflow ETL – Luồng dữ liệu và tác vụ</text>
+
+  <!-- Source: Canvas API -->
+  <g transform="translate(40,80)">
+    <rect class="box" x="0" y="0" width="240" height="90"/>
+    <text class="label" x="120" y="28" text-anchor="middle">Canvas API</text>
+    <text class="small" x="120" y="50" text-anchor="middle">/api/v1/courses · /students · /submissions</text>
+    <text class="small" x="120" y="70" text-anchor="middle">Bearer &lt;admin_token&gt;</text>
+  </g>
+
+  <!-- Extract tasks -->
+  <g transform="translate(320,80)">
+    <rect class="box box-yellow" x="0" y="0" width="170" height="60"/>
+    <text class="label" x="85" y="26" text-anchor="middle">extract_courses</text>
+    <rect class="box box-yellow" x="0" y="80" width="170" height="60"/>
+    <text class="label" x="85" y="106" text-anchor="middle">extract_students</text>
+    <rect class="box box-yellow" x="0" y="160" width="170" height="60"/>
+    <text class="label" x="85" y="186" text-anchor="middle">extract_submissions_data</text>
+  </g>
+
+  <!-- Transform & Load -->
+  <g transform="translate(540,100)">
+    <rect class="box" x="0" y="0" width="220" height="90"/>
+    <text class="label" x="110" y="28" text-anchor="middle">transform_and_load</text>
+    <text class="small" x="110" y="50" text-anchor="middle">Làm sạch, chuẩn hóa timestamp</text>
+    <text class="small" x="110" y="70" text-anchor="middle">late flag, điểm TB → canvas_dwh</text>
+  </g>
+
+  <!-- DWH targets -->
+  <g transform="translate(800,80)">
+    <rect class="box" x="0" y="0" width="180" height="44"/>
+    <text class="small" x="90" y="28" text-anchor="middle">dim_courses · dim_students</text>
+    <rect class="box" x="0" y="60" width="180" height="44"/>
+    <text class="small" x="90" y="88" text-anchor="middle">dim_assignments</text>
+    <rect class="box" x="0" y="120" width="180" height="44"/>
+    <text class="small" x="90" y="148" text-anchor="middle">fact_submissions</text>
+  </g>
+
+  <!-- Arrows -->
+  <g>
+    <line class="arrow" x1="280" y1="125" x2="320" y2="125"/>
+    <line class="arrow" x1="490" y1="110" x2="540" y2="110"/>
+    <line class="arrow" x1="760" y1="145" x2="800" y2="145"/>
+  </g>
+
+  <!-- Schedule -->
+  <g transform="translate(40,320)">
+    <text class="label">Lịch chạy</text>
+    <rect class="box" x="0" y="20" width="170" height="46"/>
+    <text class="small" x="85" y="48" text-anchor="middle">@hourly: extract_* </text>
+    <rect class="box" x="190" y="20" width="200" height="46"/>
+    <text class="small" x="290" y="48" text-anchor="middle">@hourly: transform_and_load</text>
+    <rect class="box" x="410" y="20" width="180" height="46"/>
+    <text class="small" x="500" y="48" text-anchor="middle">after ETL: train_ml</text>
+    <line class="arrow" x1="170" y1="43" x2="190" y2="43"/>
+    <line class="arrow" x1="390" y1="43" x2="410" y2="43"/>
+  </g>
+</svg>
+

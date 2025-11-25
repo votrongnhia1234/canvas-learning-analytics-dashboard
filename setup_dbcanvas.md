@@ -88,6 +88,6 @@ docker compose exec web bundle exec rake db:migrate
 docker compose exec web bundle exec rake db:seed
 docker compose exec web bundle exec rake custom:reset_and_seed
 
-🧠 Tác giả: Võ Trọng Nghĩa
+Võ Trọng Nghĩa
 HUTECH – Learning Analytics Dashboard Project
 Canvas LMS Local ETL & Dashboard Pipeline

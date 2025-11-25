@@ -12,7 +12,8 @@
     "d3": "^7.9.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7"
   },
   "devDependencies": {
     "@instructure/browserslist-config-canvas-lms": "^2.0.0",
