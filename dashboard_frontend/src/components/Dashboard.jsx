@@ -14,7 +14,8 @@ const Dashboard = ({ data }) => {
     distribution,
     realtimeActivity,
     courseComparison,
-    trends
+    trends,
+    topPerformers = []
   } = data
 
   const averageGrade =
@@ -28,6 +29,15 @@ const Dashboard = ({ data }) => {
       : 0
 
   const highRiskStudents = students.filter(s => s.risk_probability >= 0.7)
+
+  const performerList = useMemo(() => {
+    if (topPerformers.length) {
+      return topPerformers
+    }
+    return [...students]
+      .filter(s => s.avg_grade != null)
+      .sort((a, b) => (b.avg_grade || 0) - (a.avg_grade || 0))
+  }, [students, topPerformers])
 
   const insightNotes = useMemo(() => {
     const safeRatio = overview.at_risk_ratio != null ? (1 - overview.at_risk_ratio) * 100 : 0
@@ -83,11 +93,15 @@ const Dashboard = ({ data }) => {
 
   const comparisonDataset =
     courseComparison && courseComparison.length
-      ? courseComparison
+      ? courseComparison.map(course => ({
+          course_name: course.course_name,
+          total_submissions: Number(course.total_submissions || 0),
+          enrolled_students: Number(course.enrolled_students || 1)
+        }))
       : courses.map(course => ({
           course_name: course.course_name,
-          total_submissions: course.total_submissions || 0,
-          enrolled_students: course.student_count || 1
+          total_submissions: Number(course.total_submissions || 0),
+          enrolled_students: Number(course.student_count || 1)
         }))
   const defaultStudentId = students?.[0]?.student_id || ''
 
@@ -98,7 +112,7 @@ const Dashboard = ({ data }) => {
           <p className="la-eyebrow">Trạng thái toàn hệ thống</p>
           <h2>Pipeline học tập hiện ổn định và an toàn</h2>
           <p>
-            Dữ liệu được đồng bộ mỗi 15 phút từ Canvas Data Warehouse và tự động làm sạch để
+            Dữ liệu được đồng bộ mỗi 1 giờ từ Canvas Data Warehouse và tự động làm sạch để
             đảm bảo các chỉ số luôn sẵn sàng cho quyết định thời gian thực.
           </p>
           <ul className="hero__insights">
@@ -152,6 +166,23 @@ const Dashboard = ({ data }) => {
               </div>
             ))}
           </div>
+        </article>
+      </section>
+
+      <section className="la-grid la-grid--stretch">
+        <article className="la-panel">
+          <PanelHeader
+            title="Sinh vien rui ro cao"
+            subtitle="Uu tien can thiep som"
+          />
+          <TopRiskStudents data={highRiskStudents.slice(0, 5)} />
+        </article>
+        <article className="la-panel">
+          <PanelHeader
+            title="Top hoc vien noi bat"
+            subtitle="Diem cao & ky luat"
+          />
+          <TopPerformersList data={performerList.slice(0, 5)} />
         </article>
       </section>
 
@@ -266,25 +297,74 @@ const RiskPieChart = ({ data }) => {
   )
 }
 
-const TopRiskStudents = ({ data }) => (
-  <div className="risk-list">
-    {data.map((student, index) => (
-      <div key={student.student_name} className="risk-row">
-        <div className="risk-row__meta">
-          <span className="risk-rank">#{index + 1}</span>
-          <div>
-            <p>{student.student_name}</p>
-            <small>Điểm TB {formatGrade(student.avg_grade)}</small>
+const TopRiskStudents = ({ data }) => {
+  if (!data.length) {
+    return (
+      <div className="la-state">
+        <p>Chua co sinh vien trong nhom rui ro cao</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="risk-list">
+      {data.map((student, index) => (
+        <div
+          key={`${student.student_id || index}-${student.course_id || 'course'}`}
+          className="risk-row"
+        >
+          <div className="risk-row__meta">
+            <span className="risk-rank">#{index + 1}</span>
+            <div>
+              <p>{student.student_name}</p>
+              <small>Diem TB {formatGrade(student.avg_grade)}</small>
+            </div>
+          </div>
+          <div className="risk-row__meter">
+            <span style={{ width: `${(student.risk_probability || 0) * 100}%` }} />
+          </div>
+          <div className="risk-row__value">
+            {((student.risk_probability || 0) * 100).toFixed(0)}%
           </div>
         </div>
-        <div className="risk-row__meter">
-          <span style={{ width: `${student.risk_probability * 100}%` }} />
-        </div>
-        <div className="risk-row__value">{(student.risk_probability * 100).toFixed(0)}%</div>
+      ))}
+    </div>
+  )
+}
+
+const TopPerformersList = ({ data }) => {
+  if (!data.length) {
+    return (
+      <div className="la-state">
+        <p>Chua co du lieu top hoc vien</p>
       </div>
-    ))}
-  </div>
-)
+    )
+  }
+
+  return (
+    <div className="performer-list">
+      {data.map((student, index) => (
+        <div className="performer-row" key={`${student.student_id || index}-performer`}>
+          <div className="performer-row__meta">
+            <span className="risk-rank" aria-hidden="true">#{index + 1}</span>
+            <div>
+              <p>{student.student_name}</p>
+              <small>{student.student_email || 'N/A'}</small>
+            </div>
+          </div>
+          <div className="performer-row__stat">
+            <strong>{formatGrade(student.avg_grade)}</strong>
+            <small>Diem trung binh</small>
+          </div>
+          <div className="performer-row__stat">
+            <strong>{formatPercent(1 - (student.late_submission_ratio || 0))}</strong>
+            <small>Ty le nop dung han</small>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const TrendLineChart = ({ data }) => {
   const svgRef = useRef(null)

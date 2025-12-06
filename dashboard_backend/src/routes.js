@@ -3,6 +3,7 @@ import {
   fetchOverview,
   fetchCourseSummary,
   fetchStudentSummary,
+  fetchCourseStudents,
   fetchStudentDistribution,
   fetchWeeklyTrends,
   fetchLateHeatmap,
@@ -118,6 +119,17 @@ router.get("/students/top-performers", async (req, res, next) => {
   }
 });
 
+router.get("/courses/:courseId/students", async (req, res, next) => {
+  try {
+    const courseId = req.params.courseId;
+    const limit = Number(req.query.limit) || 1000;
+    const data = await fetchCourseStudents(courseId, limit);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/activity/realtime", async (_req, res, next) => {
   try {
     const data = await fetchRealtimeActivity();
@@ -170,6 +182,7 @@ router.get("/all", async (_req, res, next) => {
       overview,
       courses,
       students,
+      courseStudents,
       distribution,
       trends,
       heatmap,
@@ -182,6 +195,7 @@ router.get("/all", async (_req, res, next) => {
       fetchOverview(),
       fetchCourseSummary(),
       fetchStudentSummary(1000),
+      fetchCourseStudents(null, 2000),
       fetchStudentDistribution(),
       fetchWeeklyTrends(),
       fetchLateHeatmap(),
@@ -196,6 +210,7 @@ router.get("/all", async (_req, res, next) => {
       overview,
       courses,
       students,
+      courseStudents,
       topStudents: students.slice(0, 20),
       distribution,
       trends,

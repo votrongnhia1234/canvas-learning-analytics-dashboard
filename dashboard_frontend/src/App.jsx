@@ -1,15 +1,14 @@
 import { useState } from 'react'
 import Header from './components/Header'
 import Dashboard from './components/Dashboard'
-import Students from './components/Students'
 import Courses from './components/Courses'
+import CourseDetail from './components/CourseDetail'
 import Analytics from './components/Analytics'
 import { useData } from './hooks/useData'
 
 const VIEWS = [
   { id: 'dashboard', label: 'Tổng quan', meta: 'Sức khỏe hệ thống' },
-  { id: 'students', label: 'Sinh viên', meta: 'Theo dõi cá nhân' },
-  { id: 'courses', label: 'Khóa học', meta: 'So sánh hiệu suất' },
+  { id: 'courses', label: 'Khóa học & Sinh viên', meta: 'Quản lý theo khóa' },
   { id: 'analytics', label: 'Phân tích nâng cao', meta: 'Xu hướng & phân bố' }
 ]
 
@@ -33,21 +32,45 @@ const ErrorState = ({ message, onRetry }) => (
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard')
+  const [selectedCourse, setSelectedCourse] = useState(null)
   const { data, loading, error, refetch } = useData()
+
+  const handleCourseSelect = (course) => {
+    setSelectedCourse(course)
+    setActiveView('courses')
+  }
+
+  const handleBackToCourses = () => {
+    setSelectedCourse(null)
+  }
+
+  const handleViewChange = (viewId) => {
+    setActiveView(viewId)
+    if (viewId !== 'courses') {
+      setSelectedCourse(null)
+    }
+  }
 
   const renderView = () => {
     if (!data) return null
 
     switch (activeView) {
-      case 'students':
-        return <Students data={data} />
       case 'courses':
-        return <Courses data={data} />
+        if (selectedCourse) {
+          return (
+            <CourseDetail 
+              course={selectedCourse} 
+              onBack={handleBackToCourses}
+              allCourseStudents={data.courseStudents || []}
+            />
+          )
+        }
+        return <Courses data={data} onCourseSelect={handleCourseSelect} />
       case 'analytics':
         return <Analytics data={data} />
       case 'dashboard':
       default:
-        return <Dashboard data={data} />
+        return <Dashboard data={data} onCourseSelect={handleCourseSelect} />
     }
   }
 
@@ -63,7 +86,7 @@ function App() {
             role="tab"
             aria-selected={activeView === view.id}
             className={`la-tabs__item ${activeView === view.id ? 'is-active' : ''}`}
-            onClick={() => setActiveView(view.id)}
+            onClick={() => handleViewChange(view.id)}
           >
             <span className="la-tabs__label">{view.label}</span>
             <span className="la-tabs__meta">{view.meta}</span>

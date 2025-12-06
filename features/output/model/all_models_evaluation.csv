@@ -1,0 +1,21 @@
+model,metric,score
+Logistic Regression,Accuracy,0.9125
+Logistic Regression,Precision,0.9333333333333333
+Logistic Regression,Recall,0.8484848484848485
+Logistic Regression,F1,0.8888888888888888
+Random Forest,Accuracy,0.8875
+Random Forest,Precision,0.9
+Random Forest,Recall,0.8181818181818182
+Random Forest,F1,0.8571428571428571
+Gradient Boosting,Accuracy,0.875
+Gradient Boosting,Precision,0.896551724137931
+Gradient Boosting,Recall,0.7878787878787878
+Gradient Boosting,F1,0.8387096774193549
+SVM,Accuracy,0.9125
+SVM,Precision,0.9333333333333333
+SVM,Recall,0.8484848484848485
+SVM,F1,0.8888888888888888
+KNN,Accuracy,0.875
+KNN,Precision,0.8709677419354839
+KNN,Recall,0.8181818181818182
+KNN,F1,0.84375

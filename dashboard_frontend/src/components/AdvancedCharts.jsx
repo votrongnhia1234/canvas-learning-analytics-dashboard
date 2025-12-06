@@ -175,7 +175,10 @@ const ProgressComparisonChart = ({ data }) => {
       .attr('width', 0)
       .attr('height', y.bandwidth())
       .attr('fill', d => {
-        const rate = (d.total_submissions / (d.enrolled_students * 5)) * 100
+        // Tính rate dựa trên submissions_per_student (tỷ lệ hoàn thành bài tập)
+        // Giả định: mỗi sinh viên cần hoàn thành ~20 bài tập
+        const submissionsPerStudent = d.total_submissions / (d.enrolled_students || 1)
+        const rate = (submissionsPerStudent / 20) * 100
         if (rate >= 80) return '#10b981'
         if (rate >= 60) return '#3b82f6'
         if (rate >= 40) return '#f59e0b'
@@ -185,7 +188,9 @@ const ProgressComparisonChart = ({ data }) => {
       .transition()
       .duration(1000)
       .attr('width', d => {
-        const rate = Math.min((d.total_submissions / (d.enrolled_students * 5)) * 100, 100)
+        // Tính rate dựa trên submissions_per_student
+        const submissionsPerStudent = d.total_submissions / (d.enrolled_students || 1)
+        const rate = Math.min((submissionsPerStudent / 20) * 100, 100)
         return x(rate) - margin.left
       })
 
@@ -208,7 +213,8 @@ const ProgressComparisonChart = ({ data }) => {
       .join('text')
       .attr('class', 'value')
       .attr('x', d => {
-        const rate = Math.min((d.total_submissions / (d.enrolled_students * 5)) * 100, 100)
+        const submissionsPerStudent = d.total_submissions / (d.enrolled_students || 1)
+        const rate = Math.min((submissionsPerStudent / 20) * 100, 100)
         return x(rate) + 10
       })
       .attr('y', d => y(d.course_name) + y.bandwidth() / 2)
@@ -217,7 +223,8 @@ const ProgressComparisonChart = ({ data }) => {
       .style('font-weight', '600')
       .style('opacity', 0)
       .text(d => {
-        const rate = Math.min((d.total_submissions / (d.enrolled_students * 5)) * 100, 100)
+        const submissionsPerStudent = d.total_submissions / (d.enrolled_students || 1)
+        const rate = Math.min((submissionsPerStudent / 20) * 100, 100)
         return `${rate.toFixed(0)}%`
       })
       .transition()

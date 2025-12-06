@@ -10,7 +10,9 @@ export const formatPercent = (num) => {
 
 export const formatGrade = (grade) => {
   if (grade === null || grade === undefined) return 'N/A'
-  return grade.toFixed(1)
+  const value = Number(grade)
+  if (Number.isNaN(value)) return 'N/A'
+  return value.toFixed(1)
 }
 
 export const getRiskLevel = (probability) => {

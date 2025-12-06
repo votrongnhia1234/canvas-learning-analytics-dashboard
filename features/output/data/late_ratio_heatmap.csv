@@ -1,9 +1,13 @@
 course_name,risk_bucket,late_ratio
-Khóa học C++,Cao,0.1037037037037037
-Khóa học C++,Thấp,0.24680851063829787
-Khóa học Java,Cao,0.09259259259259259
-Khóa học Java,Thấp,0.2553191489361702
-Khóa học JavaScript,Cao,0.08148148148148149
-Khóa học JavaScript,Thấp,0.2723404255319149
-Khóa học Python,Cao,0.13703703703703704
-Khóa học Python,Thấp,0.23829787234042554
+Khóa học C++,Cao,0.3780684277359469
+Khóa học C++,Thấp,0.2449640480863077
+Khóa học C++,Trung bình,0.531439607823007
+Khóa học Java,Cao,0.39980738907074886
+Khóa học Java,Thấp,0.25455000926665095
+Khóa học Java,Trung bình,0.4745975473801561
+Khóa học JavaScript,Cao,0.4052786392439726
+Khóa học JavaScript,Thấp,0.22458452109904686
+Khóa học JavaScript,Trung bình,0.5296181274442144
+Khóa học Python,Cao,0.37067407127475777
+Khóa học Python,Thấp,0.2660895636234283
+Khóa học Python,Trung bình,0.5034090909090909

@@ -100,6 +100,73 @@ export const fetchStudentSummary = async (limit = 20) => {
   return rows;
 };
 
+export const fetchCourseStudents = async (courseId = null, limit = 1000) => {
+  let sql;
+  let params;
+  
+  if (courseId) {
+    sql = `
+      SELECT
+        student_id,
+        student_name,
+        student_email,
+        course_id,
+        course_name,
+        ROUND(course_final_avg::numeric, 2) AS course_final_avg,
+        course_submission_count,
+        ROUND(course_late_ratio::numeric, 4) AS course_late_ratio,
+        course_load,
+        ROUND(early_avg_grade::numeric, 2) AS early_avg_grade,
+        early_submission_count,
+        ROUND(early_late_ratio::numeric, 4) AS early_late_ratio,
+        active_weeks_early,
+        ROUND(avg_delay_hours::numeric, 2) AS avg_delay_hours,
+        submissions_last_14d,
+        submissions_last_30d,
+        ROUND(assignment_completion_ratio::numeric, 4) AS assignment_completion_ratio,
+        risk_probability,
+        risk_bucket,
+        predicted_at_risk
+      FROM student_course_features
+      WHERE course_id = $1
+      ORDER BY risk_probability DESC
+      LIMIT $2
+    `;
+    params = [courseId, limit];
+  } else {
+    sql = `
+      SELECT
+        student_id,
+        student_name,
+        student_email,
+        course_id,
+        course_name,
+        ROUND(course_final_avg::numeric, 2) AS course_final_avg,
+        course_submission_count,
+        ROUND(course_late_ratio::numeric, 4) AS course_late_ratio,
+        course_load,
+        ROUND(early_avg_grade::numeric, 2) AS early_avg_grade,
+        early_submission_count,
+        ROUND(early_late_ratio::numeric, 4) AS early_late_ratio,
+        active_weeks_early,
+        ROUND(avg_delay_hours::numeric, 2) AS avg_delay_hours,
+        submissions_last_14d,
+        submissions_last_30d,
+        ROUND(assignment_completion_ratio::numeric, 4) AS assignment_completion_ratio,
+        risk_probability,
+        risk_bucket,
+        predicted_at_risk
+      FROM student_course_features
+      ORDER BY risk_probability DESC
+      LIMIT $1
+    `;
+    params = [limit];
+  }
+  
+  const { rows } = await query(sql, params);
+  return rows;
+};
+
 export const fetchStudentDistribution = async () => {
   const sql = `
     WITH classified AS (
@@ -228,11 +295,17 @@ export const fetchCourseComparison = async () => {
         AVG(fs.grade) AS avg_grade,
         STDDEV(fs.grade) AS grade_stddev,
         COUNT(*) AS total_submissions,
-        COUNT(DISTINCT fs.student_id) AS enrolled_students,
         SUM(CASE WHEN fs.late THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(*), 0) AS late_ratio,
         MAX(fs.submitted_at) AS last_activity
       FROM fact_submissions fs
       WHERE fs.grade IS NOT NULL
+      GROUP BY fs.course_id
+    ),
+    course_enrollments AS (
+      SELECT
+        fs.course_id,
+        COUNT(DISTINCT fs.student_id) AS enrolled_students
+      FROM fact_submissions fs
       GROUP BY fs.course_id
     )
     SELECT
@@ -241,11 +314,12 @@ export const fetchCourseComparison = async () => {
       COALESCE(ROUND(cm.avg_grade::numeric, 2), 0) AS avg_grade,
       COALESCE(ROUND(cm.grade_stddev::numeric, 2), 0) AS grade_stddev,
       COALESCE(cm.total_submissions, 0) AS total_submissions,
-      COALESCE(cm.enrolled_students, 0) AS enrolled_students,
+      COALESCE(ce.enrolled_students, 0) AS enrolled_students,
       COALESCE(ROUND(cm.late_ratio::numeric, 4), 0) AS late_ratio,
       cm.last_activity
     FROM dim_courses dc
     LEFT JOIN course_metrics cm ON cm.course_id::bigint = dc.course_id::bigint
+    LEFT JOIN course_enrollments ce ON ce.course_id::bigint = dc.course_id::bigint
     ORDER BY dc.course_id
   `;
   const { rows } = await query(sql);

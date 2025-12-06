@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || ''
+import { buildApiUrl } from '../utils/api'
 
 export const useData = () => {
   const [data, setData] = useState(null)
@@ -12,7 +11,7 @@ export const useData = () => {
       setLoading(true)
       setError(null)
       
-      const res = await fetch(`${API_BASE}/api/all`, {
+      const res = await fetch(buildApiUrl('all'), {
         headers: {
           'Content-Type': 'application/json',
           ...(import.meta.env.VITE_API_KEY ? { 'X-API-Key': import.meta.env.VITE_API_KEY } : {})
@@ -22,7 +21,7 @@ export const useData = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
       const payload = await res.json()
-      
+
       // Transform data
       const transformedData = {
         overview: payload.overview,
@@ -59,6 +58,24 @@ export const useData = () => {
           ...h,
           bucket: Number(h.bucket),
           count: Number(h.count)
+        })),
+        courseStudents: (payload.courseStudents || []).map(s => ({
+          ...s,
+          course_id: s.course_id,
+          course_final_avg: Number(s.course_final_avg),
+          course_submission_count: Number(s.course_submission_count || 0),
+          course_late_ratio: Number(s.course_late_ratio),
+          course_load: Number(s.course_load || 0),
+          early_avg_grade: Number(s.early_avg_grade),
+          early_submission_count: Number(s.early_submission_count || 0),
+          early_late_ratio: Number(s.early_late_ratio),
+          active_weeks_early: Number(s.active_weeks_early || 0),
+          avg_delay_hours: Number(s.avg_delay_hours),
+          submissions_last_14d: Number(s.submissions_last_14d || 0),
+          submissions_last_30d: Number(s.submissions_last_30d || 0),
+          assignment_completion_ratio: Number(s.assignment_completion_ratio),
+          risk_probability: Number(s.risk_probability || 0),
+          predicted_at_risk: Number(s.predicted_at_risk || 0)
         })),
         // New data
         assignments: payload.assignments || [],

@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import { formatNumber, formatPercent, formatGrade } from '../utils/helpers'
 
-const Courses = ({ data }) => {
+const Courses = ({ data, onCourseSelect }) => {
   if (!data) return null
   const { courses } = data
+
+  const [searchTerm, setSearchTerm] = useState('')
+  const [riskFilter, setRiskFilter] = useState('all')
+  const [sortKey, setSortKey] = useState('name')
 
   const highlight = useMemo(
     () =>
@@ -15,20 +19,94 @@ const Courses = ({ data }) => {
     [courses]
   )
 
+  const filteredCourses = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase()
+    const riskRanges = {
+      low: { min: 0, max: 0.15 },
+      medium: { min: 0.15, max: 0.3 },
+      high: { min: 0.3, max: 1 }
+    }
+
+    const filtered = courses.filter(course => {
+      const matchesSearch = !query || course.course_name.toLowerCase().includes(query)
+      const risk = course.at_risk_ratio || 0
+      const matchesRisk =
+        riskFilter === 'all' ||
+        (risk >= riskRanges[riskFilter].min && risk < riskRanges[riskFilter].max)
+      return matchesSearch && matchesRisk
+    })
+
+    const sorters = {
+      name: (a, b) => a.course_name.localeCompare(b.course_name),
+      avg_grade: (a, b) => (b.avg_grade || 0) - (a.avg_grade || 0),
+      student_count: (a, b) => (b.student_count || 0) - (a.student_count || 0),
+      risk: (a, b) => (b.at_risk_ratio || 0) - (a.at_risk_ratio || 0)
+    }
+
+    return filtered.sort(sorters[sortKey])
+  }, [courses, riskFilter, searchTerm, sortKey])
+
+  const chartData = filteredCourses.length ? filteredCourses : courses
+
   return (
     <div className="la-stack">
       <section className="la-panel">
         <div className="la-panel__header">
           <div>
             <h3>Hiệu suất các khóa học</h3>
-            <p>So sánh nhanh điểm số, mức độ hoàn thành và rủi ro</p>
+            <p>Click vào khóa học để xem danh sách sinh viên</p>
           </div>
         </div>
 
+        <div className="filters-bar course-filters">
+          <label className="field-text">
+            <span className="field-text__icon" aria-hidden="true">?</span>
+            <input
+              type="search"
+              placeholder="Tìm tên khóa học..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </label>
+          <select
+            className="field-select"
+            value={riskFilter}
+            onChange={e => setRiskFilter(e.target.value)}
+          >
+            <option value="all">Tất cả mức rủi ro</option>
+            <option value="low">Rủi ro thấp</option>
+            <option value="medium">Rủi ro trung bình</option>
+            <option value="high">Rủi ro cao</option>
+          </select>
+          <select
+            className="field-select"
+            value={sortKey}
+            onChange={e => setSortKey(e.target.value)}
+          >
+            <option value="name">Sắp xếp A-Z</option>
+            <option value="avg_grade">Điểm trung bình cao</option>
+            <option value="student_count">Nhiều sinh viên</option>
+            <option value="risk">Rủi ro cao</option>
+          </select>
+          <span className="course-filters__meta">
+            Đang hiển thị {filteredCourses.length}/{courses.length} khóa
+          </span>
+        </div>
+
         <div className="courses-grid">
-          {courses.map(course => (
-            <CourseCard key={course.course_name} course={course} highlight={highlight.includes(course.course_name)} />
+          {filteredCourses.map(course => (
+            <CourseCard 
+              key={course.course_name} 
+              course={course} 
+              highlight={highlight.includes(course.course_name)}
+              onClick={() => onCourseSelect(course)}
+            />
           ))}
+          {filteredCourses.length === 0 && (
+            <div className="la-state">
+              <p>Không tìm thấy khóa học phù hợp bộ lọc</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -39,14 +117,37 @@ const Courses = ({ data }) => {
             <p>Số sinh viên (trục X) so với điểm trung bình (trục Y)</p>
           </div>
         </div>
-        <CourseComparisonChart data={courses} />
+        <CourseComparisonChart data={chartData} />
       </section>
     </div>
   )
 }
 
-const CourseCard = ({ course, highlight }) => (
-  <article className={`course-card ${highlight ? 'is-highlighted' : ''}`}>
+const courseRiskMeta = {
+  low: { label: 'Rủi ro thấp', className: 'pill--low', description: '< 15% sinh viên cảnh báo' },
+  medium: { label: 'Rủi ro trung bình', className: 'pill--medium', description: '15-30% sinh viên' },
+  high: { label: 'Rủi ro cao', className: 'pill--high', description: '> 30% sinh viên' }
+}
+
+const getCourseRisk = (ratio = 0) => {
+  if (ratio >= 0.3) return 'high'
+  if (ratio >= 0.15) return 'medium'
+  return 'low'
+}
+
+const CourseCard = ({ course, highlight, onClick }) => {
+  const riskLevel = getCourseRisk(course.at_risk_ratio)
+  const risk = courseRiskMeta[riskLevel]
+
+  return (
+  <article 
+    className={`course-card ${highlight ? 'is-highlighted' : ''}`}
+    onClick={onClick}
+    style={{ cursor: 'pointer' }}
+    role="button"
+    tabIndex={0}
+    onKeyPress={(e) => e.key === 'Enter' && onClick()}
+  >
     <header>
       <p className="course-card__eyebrow">{highlight ? 'Top performer' : 'Khóa học'}</p>
       <h4>{course.course_name}</h4>
@@ -72,13 +173,17 @@ const CourseCard = ({ course, highlight }) => (
     <div className="progress-line progress-line--accent">
       <span
         style={{
-          width: `${Math.min(course.avg_grade, 100)}%`,
+          width: `${Math.min(course.avg_grade * 10, 100)}%`,
           background: highlight ? 'var(--cl-primary)' : '#0ea5e9'
         }}
       />
     </div>
+    <div className="course-card__risk">
+      <span className={`pill ${risk.className}`}>{risk.label}</span>
+      <small>{risk.description}</small>
+    </div>
   </article>
-)
+)}
 
 const CourseComparisonChart = ({ data }) => {
   const svgRef = useRef(null)

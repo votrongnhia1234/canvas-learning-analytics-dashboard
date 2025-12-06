@@ -14,7 +14,7 @@ const MAX_REQUESTS_PER_WINDOW = 30;
 // Store conversation history and rate limit info per session
 const sessionStore = new Map();
 
-const SOURCE_TABLES = ["student_features", "fact_submissions"];
+const SOURCE_TABLES = ["student_features", "student_course_features", "fact_submissions"];
 
 const toNumber = (value) => {
   if (value === null || value === undefined) return null;
@@ -122,23 +122,28 @@ const fetchStudentCourseMetrics = async (studentId) => {
   if (!studentId) return [];
   const { rows } = await query(
     `
+    WITH class_avg AS (
+      SELECT
+        course_id,
+        AVG(grade) AS avg_grade
+      FROM fact_submissions
+      WHERE grade IS NOT NULL
+      GROUP BY course_id
+    )
     SELECT
-      fs.course_id,
-      COALESCE(dc.course_name, CONCAT('Course ', fs.course_id)) AS course_name,
-      ROUND(AVG(CASE WHEN fs.student_id = $1 THEN fs.grade END)::numeric, 2) AS student_avg,
-      ROUND(AVG(fs.grade)::numeric, 2) AS class_avg,
-      ROUND(
-        SUM(CASE WHEN fs.student_id = $1 AND fs.late THEN 1 ELSE 0 END)::numeric /
-        NULLIF(SUM(CASE WHEN fs.student_id = $1 THEN 1 ELSE 0 END), 0),
-        4
-      ) AS student_late_ratio,
-      COUNT(*) FILTER (WHERE fs.student_id = $1) AS student_submissions
-    FROM fact_submissions fs
-    LEFT JOIN dim_courses dc ON dc.course_id::bigint = fs.course_id::bigint
-    WHERE fs.grade IS NOT NULL
-    GROUP BY fs.course_id, dc.course_name
-    HAVING COUNT(*) FILTER (WHERE fs.student_id = $1) > 0
-    ORDER BY student_avg ASC NULLS LAST
+      scf.course_id,
+      COALESCE(scf.course_name, CONCAT('Course ', scf.course_id)) AS course_name,
+      ROUND(scf.course_final_avg::numeric, 2) AS student_avg,
+      ROUND(class_avg.avg_grade::numeric, 2) AS class_avg,
+      ROUND(scf.course_late_ratio::numeric, 4) AS student_late_ratio,
+      scf.course_submission_count AS student_submissions,
+      scf.risk_probability,
+      scf.risk_bucket,
+      scf.predicted_at_risk
+    FROM student_course_features scf
+    LEFT JOIN class_avg ON class_avg.course_id = scf.course_id
+    WHERE scf.student_id = $1
+    ORDER BY scf.course_final_avg ASC NULLS LAST
   `,
     [studentId]
   );
@@ -149,7 +154,10 @@ const fetchStudentCourseMetrics = async (studentId) => {
     studentAvg: toNumber(row.student_avg),
     classAvg: toNumber(row.class_avg),
     studentLateRatio: toNumber(row.student_late_ratio),
-    studentSubmissions: Number(row.student_submissions || 0)
+    studentSubmissions: Number(row.student_submissions || 0),
+    riskProbability: toNumber(row.risk_probability),
+    riskBucket: row.risk_bucket,
+    predictedAtRisk: row.predicted_at_risk === 1
   }));
 };
 
@@ -413,12 +421,12 @@ const getSystemPrompt = async (role = "student", userId = null) => {
       }
     } else if (role === "teacher" && userId) {
       const teacherCourses = await query(
-        `SELECT c.course_name, COUNT(f.student_id) AS total_students,
-                SUM(CASE WHEN sf.predicted_at_risk=1 THEN 1 ELSE 0 END) AS at_risk_students
+        `SELECT c.course_name,
+                COUNT(scf.student_id) AS total_students,
+                SUM(CASE WHEN scf.predicted_at_risk = 1 THEN 1 ELSE 0 END) AS at_risk_students
          FROM dim_courses c
-         JOIN fact_submissions f ON f.course_id=c.course_id
-         JOIN student_features sf ON sf.student_id=f.student_id
-         WHERE c.teacher_id=$1
+         JOIN student_course_features scf ON scf.course_id = c.course_id
+         WHERE c.teacher_id = $1
          GROUP BY c.course_name`,
         [userId]
       );

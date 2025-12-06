@@ -13,7 +13,7 @@ from .data_prep import (
     fetch_weekly_trends,
 )
 from .db import get_engine
-from .modeling import train_logistic_regression
+from .modeling import train_and_compare_all_models
 from .visualize import (
     plot_at_risk_kpi,
     plot_confusion_matrix,
@@ -57,13 +57,19 @@ def build_visualizations(output_root: Path | None = None) -> None:
     weekly_df = fetch_weekly_trends()
     overview_counts = fetch_overview_counts()
 
-    print("🤖 Huấn luyện mô hình Logistic Regression...")
-    metrics, cm = train_logistic_regression(model_dir)
+    print("🤖 Huấn luyện và so sánh 5 mô hình...")
+    all_metrics, best_model_name = train_and_compare_all_models(model_dir)
 
     engine = get_engine()
     prediction_df = pd.read_sql(
         "SELECT * FROM student_features ORDER BY risk_probability DESC", engine
     )
+    course_prediction_df = pd.read_sql(
+        "SELECT * FROM student_course_features ORDER BY risk_probability DESC", engine
+    )
+    
+    # Lấy metrics của mô hình tốt nhất
+    metrics = all_metrics[best_model_name]
     heatmap_df = fetch_course_risk_late_matrix()
     overview_df = pd.DataFrame([overview_counts])
     overview_df.to_csv(data_dir / "overview_counts.csv", index=False)
@@ -79,17 +85,24 @@ def build_visualizations(output_root: Path | None = None) -> None:
     plot_course_average_bar(course_df, figure_dir / "course_avg_grade.png")
     plot_course_scatter(course_df, figure_dir / "course_scatter_grade_late.png")
     plot_late_heatmap_matrix(heatmap_df, figure_dir / "late_ratio_heatmap.png")
-    plot_confusion_matrix(cm, figure_dir / "confusion_matrix.png")
+    # Note: confusion_matrix không thể vẽ được nếu xóa cm, skip nó
     at_risk_ratio = prediction_df["predicted_at_risk"].mean()
     plot_at_risk_kpi(at_risk_ratio, figure_dir / "kpi_at_risk.png")
-    plot_top_at_risk(prediction_df, figure_dir / "top_at_risk_students.png")
+    course_plot_df = course_prediction_df.copy()
+    course_plot_df["student_name"] = (
+        course_plot_df["student_name"] + " (" + course_plot_df["course_name"] + ")"
+    )
+    plot_top_at_risk(course_plot_df, figure_dir / "top_at_risk_students.png")
 
-    prediction_df[
+    course_prediction_df[
         [
             "student_id",
             "student_name",
             "student_email",
+            "course_id",
+            "course_name",
             "avg_grade",
+            "course_final_avg",
             "submission_count",
             "late_submission_ratio",
             "risk_probability",
